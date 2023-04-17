@@ -83,8 +83,13 @@ margins, at(x=75)
 // Note that -margins- gives the Confidence Interval for the predcited value
 // However, we are interested in the Prediction Interval given x=75
 
+// A prediction interval is where you expect a future value to fall.
+// A confidence interval shows the likely range of values associated with 
+// some statistical parameter of the data, such as the population mean.
+// An illustration: https://apmonitor.com/che263/uploads/Main/regression_statistics_python.png
+
 // So, we need to get the standard error of the predicted value
-predict se_forecast, stdf
+predict se_forecast, stdf // stdf is undocumented
 // critical value
 gen tmult = invttail(1219, .025)
 // lower and upper bounds for the Prediction Interval
