@@ -6,10 +6,11 @@
  |____/ \___/|____/____//_/    /_/ \___/_____|
  
  Welcome to BUSS7902 Quantitative Business Research Methods
- 
- - Instructor: Dr. Claire Liu (claire.liu@sydney.edu.au)
- - Assistant: Dr. Mingze Gao (mingze.gao@sydney.edu.au)
- - 2023 Semester 1, University of Sydney
+
+ This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+ Course coordinator:
+ - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+ - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
  
  ******************************************************************************/   
  
