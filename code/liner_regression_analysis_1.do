@@ -27,7 +27,7 @@
  ******************************************************************************/
  
  // The original dataset from Excel spreadsheet
-use "./data/exam.dta", clear
+use "${data}/exam.dta", clear
 
  
 // Correlation?
@@ -127,7 +127,7 @@ twoway scatter resid  y_predicted
  ******************************************************************************/
  
 // The original dataset from Excel spreadsheet
-use "./data/galton.dta", clear
+use "${data}/galton.dta", clear
 
 
 // Correlation?

@@ -105,7 +105,7 @@ reg price mpg rep78 headroom trunk weight ///
 // We can save the table in Word file very easily.
 putdocx begin
 putdocx table mytable = etable
-putdocx save auto.docx, replace
+putdocx save ${temp}/auto.docx, replace // store the output in the temp folder
 
 
 

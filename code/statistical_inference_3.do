@@ -87,7 +87,7 @@ prtesti 200 0.25 100 0.35, level(95)
  
 // 1) Two-sample mean test, known but unequal variances
 
-use "./data/store.dta", clear
+use "${data}/store.dta", clear
 
 // Also, Statistics->Summaries,tables and tests->Classical tests of hypotheses
 // ->z test (mean comparison test, known variance)
@@ -97,20 +97,22 @@ ztest logancity == ipswich, unpaired sd1(5365) sd2(7440) level(95)
 
 // 2) Two-sample mean test, unknown but equal variances, independent samples
 
-use "./data/desk.dta", clear
+use "${data}/desk.dta", clear
 
 ttest designa == designb, unpaired level(95)
 
 
 // 3) Two-sample mean test, unknown and unequal variances, independent samples
 
-use "./data/cereals.dta", clear
+use "${data}/cereals.dta", clear
 
 ttest consumers == nonconsumers, unpaired level(95) unequal
 
 
 // 4) Two-sample mean test, unknown and unequal variances, dependent samples
 // H0: mu1 - mu2 = 2
+use "${data}/design2.dta", clear
+
 gen newdesign_2 = newdesign - 2
 
 ttest newdesign_2 == existingdesign, level(95) 

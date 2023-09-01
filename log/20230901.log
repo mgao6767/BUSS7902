@@ -1,0 +1,2762 @@
+---------------------------------------------------------------------------------------------
+      name:  BUSS7902
+       log:  /Users/adriangao/Documents/GitHub/BUSS7902/log/20230901.log
+  log type:  text
+ opened on:   1 Sep 2023, 11:18:02
+
+. 
+. 
+. /*******************************************************************************
+>  Introduction
+>  ******************************************************************************/
+. /* 
+>   Open introduction.do in the do editor
+>  */
+. doedit ${code}/introduction.do
+
+. 
+. /*******************************************************************************
+>  Statistic inference
+>  ******************************************************************************/
+. doedit ${code}/statistical_inference_1.do
+
+. doedit ${code}/statistical_inference_2.do
+
+. doedit ${code}/statistical_inference_3.do
+
+. doedit ${code}/statistical_inference_4.do
+
+. 
+. if `execute_do_files' {
+.   do ${code}/statistical_inference_1.do
+
+. /*******************************************************************************
+>   ____  _   _ ____ ____ _____ ___   ___ ____  
+>  | __ )| | | / ___/ ___|___  / _ \ / _ \___ \ 
+>  |  _ \| | | \___ \___ \  / / (_) | | | |__) |
+>  | |_) | |_| |___) |__) |/ / \__, | |_| / __/ 
+>  |____/ \___/|____/____//_/    /_/ \___/_____|
+>  
+>  Welcome to BUSS7902 Quantitative Business Research Methods
+> 
+>  This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+>  Course coordinator:
+>  - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+>  - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
+>  
+>  ******************************************************************************/   
+.  
+. 
+. /* Hint:
+>    You can execute this file by either of the following:
+>         1) Click on the "Execute (do)" button
+>         2) "Ctrl+D" on Windows or "CMD+SHIFT+D" on Mac
+>  */
+. display "BUSS7902 Chapter 4A - Statistical Inference I"
+BUSS7902 Chapter 4A - Statistical Inference I
+
+. 
+. 
+. 
+. /*******************************************************************************
+>  Import data from Excel spreadsheet
+>  ******************************************************************************/           
+>          
+. 
+. local spreadsheet "${input}/spreadsheets/BUSS7902 Chapter 4A Lecture (Data).xlsx"
+
+. 
+. // Describe contents of an Excel file
+. import excel using "`spreadsheet'", describe
+
+             Sheet | Range
+  -----------------+-----------------
+         Magic Box | A1:C101
+          Assembly | A1:H76
+          Distance | A1:L42
+  Insurance+Survey | A1:H1501
+
+. 
+. // Import the sheet "Magic Box"
+. import excel using "`spreadsheet'", ///
+>         firstrow sheet("Magic Box") cellrange(A1:A101) clear
+(1 var, 100 obs)
+
+. save "${temp}/magicbox.dta", replace
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/magicbox.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/magicbox.dta saved
+
+. 
+. // Import the sheet "Assembly"
+. import excel using "`spreadsheet'", ///
+>         firstrow sheet("Assembly") cellrange(A1:A76) clear case(lower)
+(1 var, 75 obs)
+
+. save "${temp}/assembly.dta", replace
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/assembly.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/assembly.dta saved
+
+. 
+. // Import the sheet "Distance"
+. import excel using "`spreadsheet'", ///
+>         firstrow sheet("Distance") cellrange(A1:A42) clear case(lower)
+(1 var, 41 obs)
+
+. save "${temp}/distance.dta", replace
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/distance.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/distance.dta saved
+
+. 
+. // Import the sheet "Insurance+Survey"
+. import excel using "`spreadsheet'", ///
+>         firstrow sheet("Insurance+Survey") cellrange(A1:A1501) clear case(lower)
+(1 var, 1,500 obs)
+
+. save "${temp}/insurance.dta", replace
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/insurance.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/insurance.dta saved
+
+. 
+. 
+. 
+. /*******************************************************************************
+>  Run do files and solve questions
+>  ******************************************************************************/           
+>          
+. 
+. foreach sheet in magicbox assembly distance insurance {
+  2.         do "${code}/statistical_inference_`sheet'.do"
+  3. }
+
+. 
+. use "${temp}/magicbox.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: What is the point estimate of P(Green)?
+>  ******************************************************************************/        
+. 
+. display "Number of success, x"
+Number of success, x
+
+. count if x==1
+  27
+
+. scalar numSuccess = r(N)
+
+.  
+. display "Sample size, n"
+Sample size, n
+
+. count
+  100
+
+. scalar sampleSize = r(N)
+
+. 
+. di "Sample proportion (x/n) = " numSuccess/sampleSize
+Sample proportion (x/n) = .27
+
+. 
+.  
+. /*******************************************************************************
+>  Q2: What is a 95% CI of P(Green)?
+>  ******************************************************************************/ 
+. 
+. ci proportions x, wald                  // "ci" CIs for means, proportions and variances
+
+                                                            Binomial Wald    
+    Variable |        Obs  Proportion    Std. err.       [95% conf. interval]
+-------------+---------------------------------------------------------------
+           x |        100         .27    .0443959        .1829855    .3570145
+
+. 
+. // "proportion" estimates proportions
+. // proportion x, citype(normal) 
+. // di "Note that {cmd:citype(normal)} uses t-distribution in {cmd:proportion}!"
+. 
+. 
+. /*******************************************************************************
+>  Q3: Is P(Green) = 0.25? 
+>      Is P(Green) > 0.20? 
+>      Is P(Green) < 0.30? 
+>  ******************************************************************************/           
+>              
+.  
+. prtest x==0.25
+
+One-sample test of proportion                   Number of obs      =       100
+
+------------------------------------------------------------------------------
+    Variable |       Mean   Std. err.                     [95% conf. interval]
+-------------+----------------------------------------------------------------
+           x |        .27   .0443959                      .1829855    .3570145
+------------------------------------------------------------------------------
+    p = proportion(x)                                             z =   0.4619
+H0: p = 0.25
+
+    Ha: p < 0.25                 Ha: p != 0.25                 Ha: p > 0.25
+ Pr(Z < z) = 0.6779         Pr(|Z| > |z|) = 0.6442          Pr(Z > z) = 0.3221
+
+. 
+. prtest x==0.2
+
+One-sample test of proportion                   Number of obs      =       100
+
+------------------------------------------------------------------------------
+    Variable |       Mean   Std. err.                     [95% conf. interval]
+-------------+----------------------------------------------------------------
+           x |        .27   .0443959                      .1829855    .3570145
+------------------------------------------------------------------------------
+    p = proportion(x)                                             z =   1.7500
+H0: p = 0.2
+
+     Ha: p < 0.2                 Ha: p != 0.2                   Ha: p > 0.2
+ Pr(Z < z) = 0.9599         Pr(|Z| > |z|) = 0.0801          Pr(Z > z) = 0.0401
+
+. 
+. prtest x==0.3
+
+One-sample test of proportion                   Number of obs      =       100
+
+------------------------------------------------------------------------------
+    Variable |       Mean   Std. err.                     [95% conf. interval]
+-------------+----------------------------------------------------------------
+           x |        .27   .0443959                      .1829855    .3570145
+------------------------------------------------------------------------------
+    p = proportion(x)                                             z =  -0.6547
+H0: p = 0.3
+
+     Ha: p < 0.3                 Ha: p != 0.3                   Ha: p > 0.3
+ Pr(Z < z) = 0.2563         Pr(|Z| > |z|) = 0.5127          Pr(Z > z) = 0.7437
+
+. 
+. 
+. di "For one-sample tests of proportions with small-sample sizes and to obtain exact p-value
+> s, researchers should use {stata help bitest:bitest}"
+For one-sample tests of proportions with small-sample sizes and to obtain exact p-values, res
+> earchers should use bitest
+
+. 
+. 
+end of do-file
+
+. 
+. use "${temp}/assembly.dta", replace
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: Summary statistics of time
+>  ******************************************************************************/        
+. 
+. summarize time, detail
+
+                            Time
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         53.7           53.7
+ 5%         73.4           68.7
+10%         77.4           72.9       Obs                  75
+25%         84.6           73.4       Sum of wgt.          75
+
+50%         92.4                      Mean           91.47467
+                        Largest       Std. dev.      11.05691
+75%         99.5          106.2
+90%        103.9          108.9       Variance       122.2552
+95%        106.2          112.7       Skewness      -.2770466
+99%        125.7          125.7       Kurtosis       4.439412
+
+. 
+. tabstat time,  stat(mean semean sd variance kurtosis skewness ///
+>  range min max sum count) col(var)
+
+   Stats |      time
+---------+----------
+    Mean |  91.47467
+se(mean) |  1.276741
+      SD |  11.05691
+Variance |  122.2552
+Kurtosis |  4.439412
+Skewness | -.2770466
+   Range |        72
+     Min |      53.7
+     Max |     125.7
+     Sum |    6860.6
+       N |        75
+--------------------
+
+.  
+. /* NOTE on the Kurtosis
+>         See https://en.wikipedia.org/wiki/Kurtosis#Sample_kurtosis
+>         Excel uses the Standard unbiased estimator
+>         Stata uses the natural but biased estimator (method of moments)
+>         
+>    NOTE on the Skewness
+>     Excel SKEW() uses the sample skewness, SKEW.P() uses the population skewness
+>         Stata uses the latter or the Fisher's moment coefficient of skewness
+>  */ 
+. 
+. /*******************************************************************************
+>  Q2: What is a 95% CI of population mean (known variance)?
+>  ******************************************************************************/           
+>                                   
+. // Assume that we know the sample standard deviation is 10
+. 
+. ci mean time            // uses the sample std.dev.=11.06, not 10
+
+    Variable |        Obs        Mean    Std. err.       [95% conf. interval]
+-------------+---------------------------------------------------------------
+        time |         75    91.47467    1.276741         88.9307    94.01863
+
+. 
+. // We can do ...
+. quietly: summarize time
+
+. scalar obs = r(N)
+
+. scalar mu = r(mean)
+
+. scalar knownSD = 10
+
+. 
+. cii means obs mu knownSD        // uses t-distribution not standard normal
+
+    Variable |        Obs        Mean    Std. err.       [95% conf. interval]
+-------------+---------------------------------------------------------------
+             |         75    91.47467    1.154701        89.17388    93.77546
+
+. 
+. 
+. // Normal approximation (standard normal distribution):
+. scalar critval = invnormal(1-(1-0.95)/2)
+
+. scalar stderr = knownSD / sqrt(obs)
+
+. 
+. sca cilb = mu - critval * stderr
+
+. sca ciub = mu + critval * stderr
+
+. di "mean = " mu ", CI(lower) = " cilb ", CI(upper) = " ciub
+mean = 91.474667, CI(lower) = 89.211495, CI(upper) = 93.737838
+
+. 
+. 
+. 
+end of do-file
+
+. 
+. use "${temp}/distance.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: Summary statistics of time
+>  ******************************************************************************/        
+. 
+. tabstat kms,  stat(mean semean median sd variance kurtosis skewness ///
+>  range min max sum count) col(var)
+
+   Stats |       kms
+---------+----------
+    Mean |  7.697561
+se(mean) |  .4570783
+     p50 |       7.9
+      SD |  2.926729
+Variance |  8.565744
+Kurtosis |  3.229631
+Skewness | -.1947258
+   Range |        13
+     Min |       1.1
+     Max |      14.1
+     Sum |     315.6
+       N |        41
+--------------------
+
+.  
+. // Stata doesn't have a command to calculate mode, which we care less often
+. // In this dataset, we have multiple modes...
+. tab1 kms, sort
+
+-> tabulation of kms  
+
+        Kms |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        6.5 |          2        4.88        4.88
+        6.9 |          2        4.88        9.76
+        7.9 |          2        4.88       14.63
+          8 |          2        4.88       19.51
+        8.2 |          2        4.88       24.39
+        8.3 |          2        4.88       29.27
+        1.1 |          1        2.44       31.71
+        1.5 |          1        2.44       34.15
+        2.3 |          1        2.44       36.59
+        2.8 |          1        2.44       39.02
+        3.5 |          1        2.44       41.46
+        4.4 |          1        2.44       43.90
+          5 |          1        2.44       46.34
+        5.9 |          1        2.44       48.78
+        6.4 |          1        2.44       51.22
+        6.7 |          1        2.44       53.66
+        6.8 |          1        2.44       56.10
+          7 |          1        2.44       58.54
+        7.1 |          1        2.44       60.98
+        7.6 |          1        2.44       63.41
+        7.7 |          1        2.44       65.85
+        8.1 |          1        2.44       68.29
+          9 |          1        2.44       70.73
+        9.1 |          1        2.44       73.17
+        9.2 |          1        2.44       75.61
+        9.5 |          1        2.44       78.05
+        9.8 |          1        2.44       80.49
+         10 |          1        2.44       82.93
+       10.1 |          1        2.44       85.37
+       10.4 |          1        2.44       87.80
+       11.2 |          1        2.44       90.24
+       11.4 |          1        2.44       92.68
+         13 |          1        2.44       95.12
+       13.3 |          1        2.44       97.56
+       14.1 |          1        2.44      100.00
+------------+-----------------------------------
+      Total |         41      100.00
+
+. 
+. /*******************************************************************************
+>  Q2: What is a 95% CI of population mean (unknown variance)?
+>  ******************************************************************************/
+. 
+. ci mean kms             // uses the sample std.dev.
+
+    Variable |        Obs        Mean    Std. err.       [95% conf. interval]
+-------------+---------------------------------------------------------------
+         kms |         41    7.697561    .4570783        6.773771    8.621351
+
+. 
+. 
+. 
+end of do-file
+
+. 
+. use "${temp}/insurance.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: What is a 99% CI of population proportion?
+>  ******************************************************************************/        
+. 
+. ci proportions affected, wald level(99)
+
+                                                            Binomial Wald    
+    Variable |        Obs  Proportion    Std. err.       [99% conf. interval]
+-------------+---------------------------------------------------------------
+    affected |      1,500          .1     .007746        .0800477    .1199523
+
+. 
+. 
+end of do-file
+
+. 
+end of do-file
+.   do ${code}/statistical_inference_2.do
+
+. /*******************************************************************************
+>   ____  _   _ ____ ____ _____ ___   ___ ____  
+>  | __ )| | | / ___/ ___|___  / _ \ / _ \___ \ 
+>  |  _ \| | | \___ \___ \  / / (_) | | | |__) |
+>  | |_) | |_| |___) |__) |/ / \__, | |_| / __/ 
+>  |____/ \___/|____/____//_/    /_/ \___/_____|
+>  
+>  Welcome to BUSS7902 Quantitative Business Research Methods
+>  
+>  This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+>  Course coordinator:
+>  - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+>  - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
+>  
+>  ******************************************************************************/   
+.  
+. 
+. /* Hint:
+>    You can execute this file by either of the following:
+>         1) Click on the "Execute (do)" button
+>         2) "Ctrl+D" on Windows or "CMD+SHIFT+D" on Mac
+>  */
+. display "BUSS7902 Chapter 4A - Statistical Inference II"
+BUSS7902 Chapter 4A - Statistical Inference II
+
+. 
+. 
+. 
+. /*******************************************************************************
+>  Import data from Excel spreadsheet
+>  ******************************************************************************/           
+>          
+. 
+. local spreadsheet "${input}/spreadsheets/BUSS7902 Chapter 4B Lecture (Data).xlsx"
+
+. 
+. import excel using "`spreadsheet'", describe
+
+        Sheet | Range
+  ------------+------------
+       Garlic | A1:K101
+  Advertising | A1:L26
+   Production | A1:I17
+       Survey | A1:J401
+      Product | A1:J401
+
+. 
+. forvalues i=1/`r(N_worksheet)' {
+  2.         loc sheetname "`r(worksheet_`i')'"
+  3.         loc range "`r(range_`i')'" // e.g. A1:K101
+  4.         loc rangeClose = substr("`range'", 5, strlen("`range'"))
+  5.         qui: import excel using "`spreadsheet'", firstrow sheet("`sheetname'") ///
+>                 cellrange(A1:A`rangeClose') clear
+  6.         loc sheetname = strlower("`sheetname'")
+  7.         save "${temp}/`sheetname'.dta", replace
+  8. }
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/garlic.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/garlic.dta saved
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/advertising.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/advertising.dta saved
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/production.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/production.dta saved
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/survey.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/survey.dta saved
+(file /Users/adriangao/Documents/GitHub/BUSS7902/temp/product.dta not found)
+file /Users/adriangao/Documents/GitHub/BUSS7902/temp/product.dta saved
+
+. 
+. 
+. /*******************************************************************************
+>  Run do files and solve questions
+>  ******************************************************************************/           
+>          
+. 
+. do "${code}/statistical_inference_garlic.do"
+
+. 
+. use "${temp}/garlic.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: Summary statistics
+>  ******************************************************************************/
+.  
+. tabstat x,  stat(mean semean median sd variance kurtosis skewness ///
+>  range min max sum count) col(var)
+
+   Stats |         x
+---------+----------
+    Mean |    499.76
+se(mean) |  1.704191
+     p50 |       501
+      SD |  8.520955
+Variance |  72.60667
+Kurtosis |  7.949566
+Skewness |  -2.13503
+   Range |        40
+     Min |       470
+     Max |       510
+     Sum |     12494
+       N |        25
+--------------------
+
+. 
+.  
+. /*******************************************************************************
+>  Q2: Test for population mean (known variance)
+>  ******************************************************************************/
+. 
+. // Assume population standard deviation is 10
+. ztest x==500, sd(10)
+
+One-sample z test
+------------------------------------------------------------------------------
+Variable |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+       x |      25      499.76           2          10    495.8401    503.6799
+------------------------------------------------------------------------------
+    mean = mean(x)                                                z =  -0.1200
+H0: mean = 500                                   
+
+   Ha: mean < 500               Ha: mean != 500               Ha: mean > 500
+ Pr(Z < z) = 0.4522         Pr(|Z| > |z|) = 0.9045          Pr(Z > z) = 0.5478
+
+. 
+. di "p-value two-tail: " r(p)
+p-value two-tail: .90448315
+
+. di "p-value one-tail: " r(p)/2
+p-value one-tail: .45224157
+
+. di "Z credical value one-tail: " invnormal(1-0.05)
+Z credical value one-tail: 1.6448536
+
+. di "Z credical value two-tail: " invnormal(1-0.05/2)
+Z credical value two-tail: 1.959964
+
+. 
+. // Alternatively, ...
+. // su x, mean
+. // ztesti `r(N)' `r(mean)' 10 500
+. 
+end of do-file
+
+. do "${code}/statistical_inference_advertising.do"
+
+. 
+. use "${temp}/advertising.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: Summary statistics
+>  ******************************************************************************/
+.  
+. tabstat x,  stat(mean semean median sd variance kurtosis skewness ///
+>  range min max sum count) col(var)
+
+   Stats |         x
+---------+----------
+    Mean |   19.1316
+se(mean) |  .8699248
+     p50 |     19.26
+      SD |  4.349624
+Variance |  18.91923
+Kurtosis |  2.559043
+Skewness |  .4510159
+   Range |     16.09
+     Min |     12.38
+     Max |     28.47
+     Sum |    478.29
+       N |        25
+--------------------
+
+. 
+.  
+. /*******************************************************************************
+>  Q2: Test for population mean (known variance)
+>  ******************************************************************************/
+. 
+. // Assume population standard deviation is 10
+. ztest x==17.85, sd(3.39)
+
+One-sample z test
+------------------------------------------------------------------------------
+Variable |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+       x |      25     19.1316        .678        3.39    17.80274    20.46046
+------------------------------------------------------------------------------
+    mean = mean(x)                                                z =   1.8903
+H0: mean = 17.85                                 
+
+  Ha: mean < 17.85             Ha: mean != 17.85             Ha: mean > 17.85
+ Pr(Z < z) = 0.9706         Pr(|Z| > |z|) = 0.0587          Pr(Z > z) = 0.0294
+
+. 
+. di "p-value two-tail: " r(p)
+p-value two-tail: .05872246
+
+. di "p-value one-tail: " r(p)/2
+p-value one-tail: .02936123
+
+. di "Z credical value one-tail: " invnormal(1-0.05)
+Z credical value one-tail: 1.6448536
+
+. di "Z credical value two-tail: " invnormal(1-0.05/2)
+Z credical value two-tail: 1.959964
+
+. 
+. // Alternatively, ...
+. // su x, mean
+. // ztesti `r(N)' `r(mean)' 10 500
+. 
+end of do-file
+
+. do "${code}/statistical_inference_production.do"
+
+. 
+. use "${temp}/production.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: Summary statistics
+>  ******************************************************************************/
+.  
+. tabstat x,  stat(mean semean median sd variance kurtosis skewness ///
+>  range min max sum count) col(var)
+
+   Stats |         x
+---------+----------
+    Mean |  96.46667
+se(mean) |   1.25306
+     p50 |        95
+      SD |   4.85308
+Variance |  23.55238
+Kurtosis |  2.076981
+Skewness |  .1590265
+   Range |        17
+     Min |        88
+     Max |       105
+     Sum |      1447
+       N |        15
+--------------------
+
+. 
+.  
+. /*******************************************************************************
+>  Q2: Test for population mean (unknown variance)
+>  ******************************************************************************/
+. 
+. loc hypothesized_mean = 100
+
+. 
+. ttest x==`hypothesized_mean'
+
+One-sample t test
+------------------------------------------------------------------------------
+Variable |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+       x |      15    96.46667     1.25306     4.85308    93.77912    99.15421
+------------------------------------------------------------------------------
+    mean = mean(x)                                                t =  -2.8198
+H0: mean = 100                                   Degrees of freedom =       14
+
+   Ha: mean < 100               Ha: mean != 100               Ha: mean > 100
+ Pr(T < t) = 0.0068         Pr(|T| > |t|) = 0.0136          Pr(T > t) = 0.9932
+
+. 
+. di "p-value two-tail: " r(p)
+p-value two-tail: .01363906
+
+. di "p-value one-tail: " r(p)/2
+p-value one-tail: .00681953
+
+. di "t credical value one-tail: " invt(r(df_t), 1-0.05)
+t credical value one-tail: 1.7613101
+
+. di "t credical value two-tail: " invt(r(df_t), 1-0.05/2)
+t credical value two-tail: 2.1447867
+
+. 
+end of do-file
+
+. do "${code}/statistical_inference_survey.do"
+
+. 
+. use "${temp}/survey.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: Summary statistics
+>  ******************************************************************************/
+.  
+. tabstat x,  stat(mean semean median sd variance kurtosis skewness ///
+>  range min max sum count) col(var)
+
+   Stats |         x
+---------+----------
+    Mean |      .145
+se(mean) |  .0176271
+     p50 |         0
+      SD |  .3525418
+Variance |  .1242857
+Kurtosis |  5.066142
+Skewness |  2.016468
+   Range |         1
+     Min |         0
+     Max |         1
+     Sum |        58
+       N |       400
+--------------------
+
+. 
+.  
+. /*******************************************************************************
+>  Q2: Test for population proportion
+>  ******************************************************************************/
+. 
+. 
+. prtest x==0.12, level(90)
+
+One-sample test of proportion                   Number of obs      =       400
+
+------------------------------------------------------------------------------
+    Variable |       Mean   Std. err.                     [90% conf. interval]
+-------------+----------------------------------------------------------------
+           x |       .145    .017605                      .1160423    .1739577
+------------------------------------------------------------------------------
+    p = proportion(x)                                             z =   1.5386
+H0: p = 0.12
+
+    Ha: p < 0.12                 Ha: p != 0.12                 Ha: p > 0.12
+ Pr(Z < z) = 0.9381         Pr(|Z| > |z|) = 0.1239          Pr(Z > z) = 0.0619
+
+. 
+. 
+. di "p-value two-tail: " r(p)
+p-value two-tail: .12389132
+
+. di "p-value one-tail: " r(p)/2
+p-value one-tail: .06194566
+
+. di "t credical value one-tail: " invnormal(1-0.1)
+t credical value one-tail: 1.2815516
+
+. di "t credical value two-tail: " invnormal(1-0.1/2)
+t credical value two-tail: 1.6448536
+
+. 
+end of do-file
+
+. do "${code}/statistical_inference_product.do"
+
+. 
+. use "${temp}/product.dta", clear
+
+. 
+. 
+. /*******************************************************************************
+>  Q1: Summary statistics
+>  ******************************************************************************/
+.  
+. tabstat x,  stat(mean semean median sd variance kurtosis skewness ///
+>  range min max sum count) col(var)
+
+   Stats |         x
+---------+----------
+    Mean |       .13
+se(mean) |  .0168362
+     p50 |         0
+      SD |  .3367246
+Variance |  .1133835
+Kurtosis |  5.841733
+Skewness |  2.200394
+   Range |         1
+     Min |         0
+     Max |         1
+     Sum |        52
+       N |       400
+--------------------
+
+. 
+.  
+. /*******************************************************************************
+>  Q2: Test for population proportion
+>  ******************************************************************************/
+. 
+. 
+. prtest x==0.1, level(90)
+
+One-sample test of proportion                   Number of obs      =       400
+
+------------------------------------------------------------------------------
+    Variable |       Mean   Std. err.                     [90% conf. interval]
+-------------+----------------------------------------------------------------
+           x |        .13   .0168152                      .1023415    .1576585
+------------------------------------------------------------------------------
+    p = proportion(x)                                             z =   2.0000
+H0: p = 0.1
+
+     Ha: p < 0.1                 Ha: p != 0.1                   Ha: p > 0.1
+ Pr(Z < z) = 0.9772         Pr(|Z| > |z|) = 0.0455          Pr(Z > z) = 0.0228
+
+. 
+. 
+. di "p-value two-tail: " r(p)
+p-value two-tail: .04550026
+
+. di "p-value one-tail: " r(p)/2
+p-value one-tail: .02275013
+
+. di "t credical value one-tail: " invnormal(1-0.1)
+t credical value one-tail: 1.2815516
+
+. di "t credical value two-tail: " invnormal(1-0.1/2)
+t credical value two-tail: 1.6448536
+
+. 
+end of do-file
+
+. 
+. 
+end of do-file
+.   do ${code}/statistical_inference_3.do
+
+. /*******************************************************************************
+>   ____  _   _ ____ ____ _____ ___   ___ ____  
+>  | __ )| | | / ___/ ___|___  / _ \ / _ \___ \ 
+>  |  _ \| | | \___ \___ \  / / (_) | | | |__) |
+>  | |_) | |_| |___) |__) |/ / \__, | |_| / __/ 
+>  |____/ \___/|____/____//_/    /_/ \___/_____|
+>  
+>  Welcome to BUSS7902 Quantitative Business Research Methods
+> 
+>  This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+>  Course coordinator:
+>  - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+>  - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
+>  
+>  ******************************************************************************/   
+.  
+. 
+. /* Hint:
+>    You can execute this file by either of the following:
+>         1) Click on the "Execute (do)" button
+>         2) "Ctrl+D" on Windows or "CMD+SHIFT+D" on Mac
+>  */
+. 
+. 
+. /*******************************************************************************
+>  Q1: CI for population mean (known variance)
+>         
+>         Test for two-sample mean with known variance
+>  ******************************************************************************/
+.  
+. // Command ztesti
+. // Immediate form of two-sample unpaired z test
+. // ztesti #obs1 #mean1 #sd1 #obs2 #mean2 #sd2 [, level(#)]
+. 
+. // "Commision" example
+. 
+. ztesti 60 33000 7000 100 30250 7000, level(95)
+
+Two-sample z test
+------------------------------------------------------------------------------
+         |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+       x |      60       33000    903.6961        7000    31228.79    34771.21
+       y |     100       30250         700        7000    28878.03    31621.97
+---------+--------------------------------------------------------------------
+    diff |                2750    1143.095                509.5746    4990.425
+------------------------------------------------------------------------------
+    diff = mean(x) - mean(y)                                      z =   2.4057
+H0: diff = 0
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(Z < z) = 0.9919         Pr(|Z| > |z|) = 0.0161          Pr(Z > z) = 0.0081
+
+. 
+. // "Leave" example
+. 
+. ztesti 36 73 6 36 62 6, level(99)
+
+Two-sample z test
+------------------------------------------------------------------------------
+         |     Obs        Mean    Std. err.   Std. dev.   [99% conf. interval]
+---------+--------------------------------------------------------------------
+       x |      36          73           1           6    70.42417    75.57583
+       y |      36          62           1           6    59.42417    64.57583
+---------+--------------------------------------------------------------------
+    diff |                  11    1.414214                7.357227    14.64277
+------------------------------------------------------------------------------
+    diff = mean(x) - mean(y)                                      z =   7.7782
+H0: diff = 0
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(Z < z) = 1.0000         Pr(|Z| > |z|) = 0.0000          Pr(Z > z) = 0.0000
+
+. 
+. 
+. /*******************************************************************************
+>  Q2: CI for population mean (unknown variances)
+>  ******************************************************************************/
+.  
+. // Command ttesti
+. // Immediate form of two-sample t test
+. // ttesti #obs1 #mean1 #sd1 #obs2 #mean2 #sd2 [, options2]
+. // options2          Description
+. // -----------------------------------------------------------------------------
+. //     Main
+. //       unequal         unpaired data have unequal variances
+. //       welch           use Welch's approximation
+. //       level(#)        set confidence level; default is level(95)
+. 
+. // welch specifies that the approximate degrees of freedom for the test be
+. //         obtained from Welch's formula (1947) rather than from Satterthwaite's
+. //         approximation formula (1946), which is the default when unequal is
+. //         specified.  Specifying welch implies unequal.
+. 
+. // Mingze's note: https://en.wikipedia.org/wiki/Welch%27s_t-test
+. 
+. // "11.12" example, equal variances
+. 
+. ttesti 15 1.48 0.18  15 1.23 0.14, level(90) 
+
+Two-sample t test with equal variances
+------------------------------------------------------------------------------
+         |     Obs        Mean    Std. err.   Std. dev.   [90% conf. interval]
+---------+--------------------------------------------------------------------
+       x |      15        1.48    .0464758         .18    1.398142    1.561858
+       y |      15        1.23    .0361478         .14    1.166332    1.293668
+---------+--------------------------------------------------------------------
+Combined |      30       1.355    .0370887    .2031434    1.291982    1.418018
+---------+--------------------------------------------------------------------
+    diff |                 .25    .0588784                .1498401    .3501599
+------------------------------------------------------------------------------
+    diff = mean(x) - mean(y)                                      t =   4.2460
+H0: diff = 0                                     Degrees of freedom =       28
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = 0.9999         Pr(|T| > |t|) = 0.0002          Pr(T > t) = 0.0001
+
+. 
+. // "11.12" example, unequal variance
+. 
+. ttesti 15 1.48 0.18  15 1.23 0.14, unequal level(90) 
+
+Two-sample t test with unequal variances
+------------------------------------------------------------------------------
+         |     Obs        Mean    Std. err.   Std. dev.   [90% conf. interval]
+---------+--------------------------------------------------------------------
+       x |      15        1.48    .0464758         .18    1.398142    1.561858
+       y |      15        1.23    .0361478         .14    1.166332    1.293668
+---------+--------------------------------------------------------------------
+Combined |      30       1.355    .0370887    .2031434    1.291982    1.418018
+---------+--------------------------------------------------------------------
+    diff |                 .25    .0588784                .1496321    .3503679
+------------------------------------------------------------------------------
+    diff = mean(x) - mean(y)                                      t =   4.2460
+H0: diff = 0                     Satterthwaite's degrees of freedom =  26.4004
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = 0.9999         Pr(|T| > |t|) = 0.0002          Pr(T > t) = 0.0001
+
+. 
+. // "11.24" example is paired
+. 
+. ttesti 5 3.8 3.11 0, level(95)
+
+One-sample t test
+------------------------------------------------------------------------------
+         |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+       x |       5         3.8    1.390834        3.11    -.061575    7.661575
+------------------------------------------------------------------------------
+    mean = mean(x)                                                t =   2.7322
+H0: mean = 0                                     Degrees of freedom =        4
+
+    Ha: mean < 0                 Ha: mean != 0                 Ha: mean > 0
+ Pr(T < t) = 0.9738         Pr(|T| > |t|) = 0.0523          Pr(T > t) = 0.0262
+
+. 
+. // "11.33" example is about proportion
+. // Immediate form of two-sample test of proportions
+. // prtesti #obs1 #p1 #obs2 #p2 [, level(#) count]
+. 
+. prtesti 200 0.25 100 0.35, level(95)
+
+Two-sample test of proportions                     x: Number of obs =      200
+                                                   y: Number of obs =      100
+------------------------------------------------------------------------------
+             |       Mean   Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+           x |        .25   .0306186                      .1899886    .3100114
+           y |        .35    .047697                      .2565157    .4434843
+-------------+----------------------------------------------------------------
+        diff |        -.1   .0566789                     -.2110886    .0110886
+             |  under H0:   .0551891    -1.81   0.070
+------------------------------------------------------------------------------
+        diff = prop(x) - prop(y)                                  z =  -1.8120
+    H0: diff = 0
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(Z < z) = 0.0350         Pr(|Z| > |z|) = 0.0700          Pr(Z > z) = 0.9650
+
+. 
+. 
+. /*******************************************************************************
+>  Q3: Variale based, unknown and known variances
+>  ******************************************************************************/
+.  
+. // 1) Two-sample mean test, known but unequal variances
+. 
+. use "${data}/store.dta", clear
+
+. 
+. // Also, Statistics->Summaries,tables and tests->Classical tests of hypotheses
+. // ->z test (mean comparison test, known variance)
+. 
+. ztest logancity == ipswich, unpaired sd1(5365) sd2(7440) level(95)
+
+Two-sample z test
+------------------------------------------------------------------------------
+Variable |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+loganc~y |     100       54180       536.5        5365    53128.48    55231.52
+ ipswich |     100       45340         744        7440    43881.79    46798.21
+---------+--------------------------------------------------------------------
+    diff |                8840    917.2613                7042.201     10637.8
+------------------------------------------------------------------------------
+    diff = mean(logancity) - mean(ipswich)                        z =   9.6374
+H0: diff = 0
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(Z < z) = 1.0000         Pr(|Z| > |z|) = 0.0000          Pr(Z > z) = 0.0000
+
+. 
+. 
+. // 2) Two-sample mean test, unknown but equal variances, independent samples
+. 
+. use "${data}/desk.dta", clear
+
+. 
+. ttest designa == designb, unpaired level(95)
+
+Two-sample t test with equal variances
+------------------------------------------------------------------------------
+Variable |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+ designa |      25       6.288    .1841485    .9207425    5.907936    6.668064
+ designb |      25       6.016    .2283039    1.141519    5.544804    6.487196
+---------+--------------------------------------------------------------------
+Combined |      50       6.152    .1464475     1.03554    5.857703    6.446297
+---------+--------------------------------------------------------------------
+    diff |                .272    .2933144               -.3177481    .8617481
+------------------------------------------------------------------------------
+    diff = mean(designa) - mean(designb)                          t =   0.9273
+H0: diff = 0                                     Degrees of freedom =       48
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = 0.8208         Pr(|T| > |t|) = 0.3584          Pr(T > t) = 0.1792
+
+. 
+. 
+. // 3) Two-sample mean test, unknown and unequal variances, independent samples
+. 
+. use "${data}/cereals.dta", clear
+
+. 
+. ttest consumers == nonconsumers, unpaired level(95) unequal
+
+Two-sample t test with unequal variances
+------------------------------------------------------------------------------
+Variable |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+consum~s |      10      2383.2    45.13998    142.7451    2281.086    2485.314
+noncon~s |      20      2644.4    103.4418    462.6057    2427.894    2860.906
+---------+--------------------------------------------------------------------
+Combined |      30    2557.333    73.53394     402.762     2406.94    2707.727
+---------+--------------------------------------------------------------------
+    diff |              -261.2     112.862               -493.6386   -28.76145
+------------------------------------------------------------------------------
+    diff = mean(consumers) - mean(nonconsumers)                   t =  -2.3143
+H0: diff = 0                     Satterthwaite's degrees of freedom =  25.0106
+
+    Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = 0.0146         Pr(|T| > |t|) = 0.0291          Pr(T > t) = 0.9854
+
+. 
+. 
+. // 4) Two-sample mean test, unknown and unequal variances, dependent samples
+. // H0: mu1 - mu2 = 2
+. use "${data}/design2.dta", clear
+
+. 
+. gen newdesign_2 = newdesign - 2
+
+. 
+. ttest newdesign_2 == existingdesign, level(95) 
+
+Paired t test
+------------------------------------------------------------------------------
+Variable |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+newdes~2 |      20        79.7    3.492925    15.62084    72.38922    87.01078
+existi~n |      20       77.15    3.992279    17.85401    68.79406    85.50594
+---------+--------------------------------------------------------------------
+    diff |      20        2.55    1.614857     7.22186   -.8299346    5.929935
+------------------------------------------------------------------------------
+     mean(diff) = mean(newdesign_2 - existingdesign)              t =   1.5791
+ H0: mean(diff) = 0                              Degrees of freedom =       19
+
+ Ha: mean(diff) < 0           Ha: mean(diff) != 0           Ha: mean(diff) > 0
+ Pr(T < t) = 0.9346         Pr(|T| > |t|) = 0.1308          Pr(T > t) = 0.0654
+
+. 
+. 
+. // 5) Two-sample proportion test, non-zero difference
+. // H0: p1 - p2 = d
+. // d = 0.03, p1 = 0.16
+. // no available command for this test
+. 
+. local se = sqrt(.16*(1-.16)/500+.05*(1-.05)/200)
+
+. local z = (.16-.05-.03)/`se'
+
+. di "Test stat z is " `z'
+Test stat z is 3.55538
+
+. di "Z critical value one-tail: " invnormal(1-0.05)
+Z critical value one-tail: 1.6448536
+
+. di "Z critical value two-tail: " invnormal(1-0.05/2)
+Z critical value two-tail: 1.959964
+
+. 
+. 
+. 
+end of do-file
+.   do ${code}/statistical_inference_4.do
+
+. /*******************************************************************************
+>   ____  _   _ ____ ____ _____ ___   ___ ____  
+>  | __ )| | | / ___/ ___|___  / _ \ / _ \___ \ 
+>  |  _ \| | | \___ \___ \  / / (_) | | | |__) |
+>  | |_) | |_| |___) |__) |/ / \__, | |_| / __/ 
+>  |____/ \___/|____/____//_/    /_/ \___/_____|
+>  
+>  Welcome to BUSS7902 Quantitative Business Research Methods
+>  
+>  This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+>  Course coordinator:
+>  - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+>  - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
+>  
+>  ******************************************************************************/   
+.  
+. 
+. /* Hint:
+>    You can execute this file by either of the following:
+>         1) Click on the "Execute (do)" button
+>         2) "Ctrl+D" on Windows or "CMD+SHIFT+D" on Mac
+>  */
+. 
+. 
+. /*******************************************************************************
+>  Example: 4 Machines
+>  ******************************************************************************/
+.  
+. // The original dataset from Excel spreadsheet is not in a desirable format
+. use "${data}/4machines.dta", clear
+
+. 
+. // Reshape it
+. gen i = _n
+
+. reshape long machine id, i(i) j(group)
+(j = 1 2 3 4)
+(variable id1 not found)
+(variable id2 not found)
+(variable id3 not found)
+(variable id4 not found)
+
+Data                               Wide   ->   Long
+-----------------------------------------------------------------------------
+Number of observations                8   ->   32          
+Number of variables                   5   ->   4           
+j variable (4 values)                     ->   group
+xij variables:
+         machine1 machine2 ... machine4   ->   machine
+                        id1 id2 ... id4   ->   id
+-----------------------------------------------------------------------------
+
+. drop i id
+
+. 
+. // One-way ANOVA
+. oneway machine group, tabulate
+
+            |         Summary of machine
+      group |        Mean   Std. dev.       Freq.
+------------+------------------------------------
+          1 |       6.318   .05263077           5
+          2 |      6.2775    .1052548           8
+          3 |   6.4885714   .10056971           7
+          4 |        6.23    .0432049           4
+------------+------------------------------------
+      Total |   6.3395834   .13046667          24
+
+                        Analysis of variance
+    Source              SS         df      MS            F     Prob > F
+------------------------------------------------------------------------
+Between groups      .236580085      3   .078860028     10.18     0.0003
+ Within groups      .154915595     20    .00774578
+------------------------------------------------------------------------
+    Total            .39149568     23   .017021551
+
+Bartlett's equal-variances test: chi2(3) =   3.9102    Prob>chi2 = 0.271
+
+. 
+. // Normality test using Jarque-Bera Test
+. 
+. // Surprisingly Stata does not have available command, 
+. // perhaps because it's too easy?
+. 
+. /* NOTE on the Kurtosis
+>         See https://en.wikipedia.org/wiki/Kurtosis#Sample_kurtosis
+>         Excel uses the Standard unbiased estimator
+>         Stata uses the natural but biased estimator (method of moments)
+>         
+>    NOTE on the Skewness
+>     Excel SKEW() uses the sample skewness, SKEW.P() uses the population skewness
+>         Stata uses the latter or the Fisher's moment coefficient of skewness
+>  */ 
+.  
+. quietly su machine if group==1, detail
+
+. local jb_stat = r(N) * (r(skewness)^2 + (r(kurtosis)-3)^2/4)/6
+
+. di "JB test stat is " `jb_stat'
+JB test stat is .43882456
+
+. // Very different result from Excel. We trust Stata.
+. di "Chi2 critical value is " invchi2(2, 1-0.05)
+Chi2 critical value is 5.9914645
+
+. 
+. 
+. // Two-sample variance F-test
+. 
+. // As an example, machine1 vs machine2
+. sdtest machine if group==1 | group==2, by(group)
+
+Variance ratio test
+------------------------------------------------------------------------------
+   Group |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+       1 |       5       6.318    .0235372    .0526308     6.25265     6.38335
+       2 |       8      6.2775    .0372132    .1052548    6.189505    6.365495
+---------+--------------------------------------------------------------------
+Combined |      13    6.293077     .024505    .0883539    6.239685    6.346469
+------------------------------------------------------------------------------
+    ratio = sd(1) / sd(2)                                         f =   0.2500
+H0: ratio = 1                                    Degrees of freedom =     4, 7
+
+    Ha: ratio < 1               Ha: ratio != 1                 Ha: ratio > 1
+  Pr(F < f) = 0.0992         2*Pr(F < f) = 0.1984           Pr(F > f) = 0.9008
+
+. // As an example, machine2 vs machine3
+. sdtest machine if group==2 | group==3, by(group)
+
+Variance ratio test
+------------------------------------------------------------------------------
+   Group |     Obs        Mean    Std. err.   Std. dev.   [95% conf. interval]
+---------+--------------------------------------------------------------------
+       2 |       8      6.2775    .0372132    .1052548    6.189505    6.365495
+       3 |       7    6.488571    .0380118    .1005697     6.39556    6.581583
+---------+--------------------------------------------------------------------
+Combined |      15       6.376    .0380826    .1474933    6.294321    6.457679
+------------------------------------------------------------------------------
+    ratio = sd(2) / sd(3)                                         f =   1.0953
+H0: ratio = 1                                    Degrees of freedom =     7, 6
+
+    Ha: ratio < 1               Ha: ratio != 1                 Ha: ratio > 1
+  Pr(F < f) = 0.5361         2*Pr(F > f) = 0.9277           Pr(F > f) = 0.4639
+
+. 
+. 
+. 
+. 
+. /*******************************************************************************
+>  Example: Assembly
+>  ******************************************************************************/
+.  
+. use "${data}/assembly2.dta", clear
+
+. 
+. quietly su time, detail
+
+. local jb_stat = r(N) * (r(skewness)^2 + (r(kurtosis)-3)^2/4)/6
+
+. di "JB test stat is " `jb_stat'
+JB test stat is 7.4341459
+
+. di "p-value is " 1 - chi2(2, `jb_stat')
+p-value is .02430501
+
+. di "Chi2 critical value is " invchi2(2, 1-0.05)
+Chi2 critical value is 5.9914645
+
+. 
+. 
+. 
+. 
+. /*******************************************************************************
+>  Example: Salary
+>  ******************************************************************************/
+. 
+. // The original dataset from Excel spreadsheet is not in a desirable format
+. use "${data}/salary.dta", clear
+
+. 
+. // Let's rename and reshape 
+. rename group1 salary1
+
+. rename group2 salary2
+
+. rename group3 salary3
+
+. rename group4 salary4
+
+. 
+. gen i = _n
+
+. reshape long salary id, i(i) j(group)
+(j = 1 2 3 4)
+(variable id1 not found)
+(variable id2 not found)
+(variable id3 not found)
+(variable id4 not found)
+
+Data                               Wide   ->   Long
+-----------------------------------------------------------------------------
+Number of observations               30   ->   120         
+Number of variables                   5   ->   4           
+j variable (4 values)                     ->   group
+xij variables:
+            salary1 salary2 ... salary4   ->   salary
+                        id1 id2 ... id4   ->   id
+-----------------------------------------------------------------------------
+
+. drop i id
+
+. 
+. 
+. // One-way ANOVA
+. oneway salary group, tabulate
+
+            |          Summary of salary
+      group |        Mean   Std. dev.       Freq.
+------------+------------------------------------
+          1 |        74.1   15.809971          30
+          2 |   75.666667   13.573131          30
+          3 |        78.5   15.276193          30
+          4 |        81.3   15.585471          30
+------------+------------------------------------
+      Total |   77.391667   15.149838         120
+
+                        Analysis of variance
+    Source              SS         df      MS            F     Prob > F
+------------------------------------------------------------------------
+Between groups         909.425      3   303.141667      1.33     0.2675
+ Within groups      26403.1667    116   227.613506
+------------------------------------------------------------------------
+    Total           27312.5917    119   229.517577
+
+Bartlett's equal-variances test: chi2(3) =   0.7965    Prob>chi2 = 0.850
+
+. 
+. 
+. // Normality test using Jarque-Bera Test, same as before
+. 
+. quietly su salary if group==1, detail
+
+. local jb_stat = r(N) * (r(skewness)^2 + (r(kurtosis)-3)^2/4)/6
+
+. di "JB test stat is " `jb_stat'
+JB test stat is .54945746
+
+. // Very different result from Excel. We trust Stata.
+. di "Chi2 critical value is " invchi2(2, 1-0.05)
+Chi2 critical value is 5.9914645
+
+. 
+end of do-file
+. }
+
+. 
+. /*******************************************************************************
+>  Linear regression analysis
+>  ******************************************************************************/
+. doedit ${code}/liner_regression_analysis_1.do
+
+. doedit ${code}/liner_regression_analysis_2.do
+
+. doedit ${code}/liner_regression_analysis_3.do
+
+. 
+. if `execute_do_files' {
+.   do ${code}/liner_regression_analysis_1.do
+
+. /*******************************************************************************
+>   ____  _   _ ____ ____ _____ ___   ___ ____  
+>  | __ )| | | / ___/ ___|___  / _ \ / _ \___ \ 
+>  |  _ \| | | \___ \___ \  / / (_) | | | |__) |
+>  | |_) | |_| |___) |__) |/ / \__, | |_| / __/ 
+>  |____/ \___/|____/____//_/    /_/ \___/_____|
+>  
+>  Welcome to BUSS7902 Quantitative Business Research Methods
+>  
+>  This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+>  Course coordinator:
+>  - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+>  - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
+> 
+>  ******************************************************************************/   
+.  
+. 
+. /* Hint:
+>    You can execute this file by either of the following:
+>         1) Click on the "Execute (do)" button
+>         2) "Ctrl+D" on Windows or "CMD+SHIFT+D" on Mac
+>  */
+.  
+.  
+.  /*******************************************************************************
+>  Example: Exam
+>  ******************************************************************************/
+.  
+.  // The original dataset from Excel spreadsheet
+. use "${data}/exam.dta", clear
+
+. 
+.  
+. // Correlation?
+. corr
+(obs=1,221)
+
+             |        x        y
+-------------+------------------
+           x |   1.0000
+           y |   0.7022   1.0000
+
+
+. 
+. 
+. // This codeblock below is to do statistical testing for population correlation
+. // after running the "corr" command
+. quietly {
+
+. // Display results:
+.         di "Test statistic t is " t
+Test statistic t is 2.5616844
+
+.         di "One-tail p-value is " p_val_onetail
+One-tail p-value is .00526801
+
+.         di "Two-tail p-value is " p_val_twotail
+Two-tail p-value is .01053601
+
+.         di "One-tail t critical value is " t_critical_val_onetail
+One-tail t critical value is 1.6461046
+
+.         di "Two-tail t critical value is " t_critical_val_twotail
+Two-tail t critical value is 1.961912
+
+. 
+. 
+. 
+. // Remember to check help file
+. // help reg
+. reg y x
+
+      Source |       SS           df       MS      Number of obs   =     1,221
+-------------+----------------------------------   F(1, 1219)      =   1185.98
+       Model |  139320.573         1  139320.573   Prob > F        =    0.0000
+    Residual |   143199.36     1,219  117.472814   R-squared       =    0.4931
+-------------+----------------------------------   Adj R-squared   =    0.4927
+       Total |  282519.934     1,220  231.573716   Root MSE        =    10.838
+
+------------------------------------------------------------------------------
+           y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+           x |    .681306   .0197835    34.44   0.000     .6424925    .7201195
+       _cons |   21.87942   1.291571    16.94   0.000     19.34547    24.41337
+------------------------------------------------------------------------------
+
+. 
+. // Get predicted values of Y
+. predict y_predicted
+(option xb assumed; fitted values)
+
+. 
+. // What's E(y|x=75)?
+. // If there is an observation where x=75, 
+. // then the predicted value is available
+. list if x==75
+
+      +----------------------+
+      |  x      y   y_pred~d |
+      |----------------------|
+  15. | 75   85.8   72.97737 |
+  49. | 75   77.2   72.97737 |
+  93. | 75   69.3   72.97737 |
+ 138. | 75   72.3   72.97737 |
+ 200. | 75   73.3   72.97737 |
+      |----------------------|
+ 263. | 75   65.5   72.97737 |
+ 279. | 75   78.7   72.97737 |
+ 336. | 75     74   72.97737 |
+ 399. | 75   65.5   72.97737 |
+ 441. | 75     63   72.97737 |
+      |----------------------|
+ 451. | 75   78.6   72.97737 |
+ 455. | 75   80.3   72.97737 |
+ 499. | 75   79.6   72.97737 |
+ 511. | 75   74.7   72.97737 |
+ 518. | 75   69.1   72.97737 |
+      |----------------------|
+ 525. | 75   80.5   72.97737 |
+ 541. | 75   84.8   72.97737 |
+ 625. | 75   75.1   72.97737 |
+ 768. | 75     77   72.97737 |
+ 870. | 75   80.8   72.97737 |
+      |----------------------|
+1071. | 75     75   72.97737 |
+      +----------------------+
+
+. 
+. // But what if we want E(Y|X=x) where x is not in the sample?
+. // help margins 
+. // -- Marginal means, predictive margins, and marginal effects
+. margins, at(x=75) 
+
+Adjusted predictions                                     Number of obs = 1,221
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+At: x = 75
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       _cons |   72.97737   .3861427   188.99   0.000     72.21979    73.73495
+------------------------------------------------------------------------------
+
+. 
+. // Note that -margins- gives the Confidence Interval for the predcited value
+. // However, we are interested in the Prediction Interval given x=75
+. 
+. // A prediction interval is where you expect a future value to fall.
+. // A confidence interval shows the likely range of values associated with 
+. // some statistical parameter of the data, such as the population mean.
+. // An illustration: https://apmonitor.com/che263/uploads/Main/regression_statistics_python.
+> png
+. 
+. // So, we need to get the standard error of the predicted value
+. predict se_forecast, stdf // stdf is undocumented
+
+. // critical value
+. gen tmult = invttail(1219, .025)
+
+. // lower and upper bounds for the Prediction Interval
+. gen prediction_interval_lb = y_predicted - tmult * se_forecast
+
+. gen prediction_interval_ub = y_predicted + tmult * se_forecast
+
+. 
+. list if x==75
+
+      +------------------------------------------------------------------+
+      |  x      y   y_pred~d   se_for~t      tmult   predi~lb   predi~ub |
+      |------------------------------------------------------------------|
+  15. | 75   85.8   72.97737   10.84536   1.961912   51.69972   94.25502 |
+  49. | 75   77.2   72.97737   10.84536   1.961912   51.69972   94.25502 |
+  93. | 75   69.3   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 138. | 75   72.3   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 200. | 75   73.3   72.97737   10.84536   1.961912   51.69972   94.25502 |
+      |------------------------------------------------------------------|
+ 263. | 75   65.5   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 279. | 75   78.7   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 336. | 75     74   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 399. | 75   65.5   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 441. | 75     63   72.97737   10.84536   1.961912   51.69972   94.25502 |
+      |------------------------------------------------------------------|
+ 451. | 75   78.6   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 455. | 75   80.3   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 499. | 75   79.6   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 511. | 75   74.7   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 518. | 75   69.1   72.97737   10.84536   1.961912   51.69972   94.25502 |
+      |------------------------------------------------------------------|
+ 525. | 75   80.5   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 541. | 75   84.8   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 625. | 75   75.1   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 768. | 75     77   72.97737   10.84536   1.961912   51.69972   94.25502 |
+ 870. | 75   80.8   72.97737   10.84536   1.961912   51.69972   94.25502 |
+      |------------------------------------------------------------------|
+1071. | 75     75   72.97737   10.84536   1.961912   51.69972   94.25502 |
+      +------------------------------------------------------------------+
+
+. 
+. 
+. // Get residuals
+. // Put residuals in a new variable named "resid"
+. predict resid, residuals
+
+. 
+. // Standarized residuals
+. center resid, standardize generate(c_resid)
+(generated variables: c_resid)
+
+. 
+. 
+. // Plots
+. // Ordered values of varname against quantiles of uniform distribution
+. quantile y
+
+. 
+. // Quantiles of varname against quantiles of normal distribution
+. qnorm y
+
+. 
+. // Residusls agains predicted values
+. twoway scatter resid  y_predicted 
+
+. 
+.  
+.  
+. 
+.  
+.  /*******************************************************************************
+>  Example: Galton
+>  ******************************************************************************/
+.  
+. // The original dataset from Excel spreadsheet
+. use "${data}/galton.dta", clear
+
+. 
+. 
+. // Correlation?
+. corr
+(obs=1,078)
+
+             |   father      son
+-------------+------------------
+      father |   1.0000
+         son |   0.5012   1.0000
+
+
+. 
+. 
+. // This codeblock below is to do statistical testing for population correlation
+. // after running the "corr" command
+. quietly {
+
+. // Display results:
+.         di "Test statistic t is " t
+Test statistic t is 2.3012674
+
+.         di "One-tail p-value is " p_val_onetail
+One-tail p-value is .01174728
+
+.         di "Two-tail p-value is " p_val_twotail
+Two-tail p-value is .02349456
+
+.         di "One-tail t critical value is " t_critical_val_onetail
+One-tail t critical value is 2.3650024
+
+.         di "Two-tail t critical value is " t_critical_val_twotail
+Two-tail t critical value is 2.6269311
+
+.         
+. 
+. 
+. 
+. // Remember to check help file
+. // help reg
+. 
+. reg son father
+
+      Source |       SS           df       MS      Number of obs   =     1,078
+-------------+----------------------------------   F(1, 1076)      =    360.90
+       Model |  2145.35064         1  2145.35064   Prob > F        =    0.0000
+    Residual |  6396.28125     1,076  5.94449931   R-squared       =    0.2512
+-------------+----------------------------------   Adj R-squared   =    0.2505
+       Total |  8541.63189     1,077  7.93094883   Root MSE        =    2.4381
+
+------------------------------------------------------------------------------
+         son | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      father |   .5140059   .0270568    19.00   0.000     .4609158     .567096
+       _cons |    33.8928   1.832895    18.49   0.000     30.29635    37.48925
+------------------------------------------------------------------------------
+
+. 
+. // Get predicted values of Y
+. predict son_predicted
+(option xb assumed; fitted values)
+
+. 
+. // What's E(son|father=70)?
+. // If there is an observation where father=70, 
+. // then the predicted value is available
+. list if father==70
+
+      +--------------------------+
+      | father    son   son_pr~d |
+      |--------------------------|
+  71. |     70   66.9   69.87321 |
+ 128. |     70   68.9   69.87321 |
+ 172. |     70   71.2   69.87321 |
+ 184. |     70     72   69.87321 |
+ 345. |     70   68.8   69.87321 |
+      |--------------------------|
+ 386. |     70   71.4   69.87321 |
+ 388. |     70     71   69.87321 |
+ 469. |     70   66.6   69.87321 |
+ 501. |     70   66.9   69.87321 |
+ 581. |     70     70   69.87321 |
+      |--------------------------|
+ 602. |     70   71.5   69.87321 |
+ 992. |     70   68.7   69.87321 |
+1014. |     70   70.2   69.87321 |
+1033. |     70   71.2   69.87321 |
+      +--------------------------+
+
+. 
+. // But what if we want E(Y|X=x) where x is not in the sample?
+. // e.g., E(son|father=70)?
+. // help margins 
+. // -- Marginal means, predictive margins, and marginal effects
+. margins, at(father = 70)
+
+Adjusted predictions                                     Number of obs = 1,078
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+At: father = 70
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       _cons |   69.87321    .097116   719.48   0.000     69.68266    70.06377
+------------------------------------------------------------------------------
+
+. 
+. predict se_forecast, stdf
+
+. // critical value
+. gen tmult = invttail(1219, .025)
+
+. // lower and upper bounds for the Prediction Interval
+. gen prediction_interval_lb = son_predicted - tmult * se_forecast
+
+. gen prediction_interval_ub = son_predicted + tmult * se_forecast
+
+. 
+. list if father==70
+
+      +----------------------------------------------------------------------+
+      | father    son   son_pr~d   se_for~t      tmult   predi~lb   predi~ub |
+      |----------------------------------------------------------------------|
+  71. |     70   66.9   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 128. |     70   68.9   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 172. |     70   71.2   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 184. |     70     72   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 345. |     70   68.8   69.87321   2.440068   1.961912   65.08601   74.66042 |
+      |----------------------------------------------------------------------|
+ 386. |     70   71.4   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 388. |     70     71   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 469. |     70   66.6   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 501. |     70   66.9   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 581. |     70     70   69.87321   2.440068   1.961912   65.08601   74.66042 |
+      |----------------------------------------------------------------------|
+ 602. |     70   71.5   69.87321   2.440068   1.961912   65.08601   74.66042 |
+ 992. |     70   68.7   69.87321   2.440068   1.961912   65.08601   74.66042 |
+1014. |     70   70.2   69.87321   2.440068   1.961912   65.08601   74.66042 |
+1033. |     70   71.2   69.87321   2.440068   1.961912   65.08601   74.66042 |
+      +----------------------------------------------------------------------+
+
+. 
+. 
+. // Get residuals
+. // Put residuals in a new variable named "resid"
+. predict resid, residuals
+
+. 
+. // Standarized residuals
+. center resid, standardize generate(c_resid)
+(generated variables: c_resid)
+
+. 
+. 
+. // Plots
+. // Ordered values of varname against quantiles of uniform distribution
+. quantile son
+
+. 
+. // Quantiles of varname against quantiles of normal distribution
+. qnorm son
+
+. 
+. // Residusls agains predicted values
+. twoway scatter resid  son_predicted 
+
+. 
+. 
+. 
+end of do-file
+.   do ${code}/liner_regression_analysis_2.do
+
+. /*******************************************************************************
+>   ____  _   _ ____ ____ _____ ___   ___ ____  
+>  | __ )| | | / ___/ ___|___  / _ \ / _ \___ \ 
+>  |  _ \| | | \___ \___ \  / / (_) | | | |__) |
+>  | |_) | |_| |___) |__) |/ / \__, | |_| / __/ 
+>  |____/ \___/|____/____//_/    /_/ \___/_____|
+>  
+>  Welcome to BUSS7902 Quantitative Business Research Methods
+>  
+>  This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+>  Course coordinator:
+>  - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+>  - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
+>  
+>  ******************************************************************************/   
+.  
+. 
+. /* Hint:
+>    You can execute this file by either of the following:
+>         1) Click on the "Execute (do)" button
+>         2) "Ctrl+D" on Windows or "CMD+SHIFT+D" on Mac
+>  */
+.  
+.  
+.  /*******************************************************************************
+>  Example: Real Estate
+>  ******************************************************************************/
+.  
+.  // The original dataset from Excel spreadsheet
+. use "${data}/real_estate.dta", clear
+
+. 
+. // Investigate multiculinearity
+. corr x1 x2
+(obs=23)
+
+             |       x1       x2
+-------------+------------------
+          x1 |   1.0000
+          x2 |  -0.3283   1.0000
+
+
+. // |Corr(X1,X2)| = 0.3283 < 0.95 ==> Multicollinearity does not exist
+. pwcorr x1 x2, sig
+
+             |       x1       x2
+-------------+------------------
+          x1 |   1.0000 
+             |
+             |
+          x2 |  -0.3283   1.0000 
+             |   0.1261
+             |
+
+. 
+. // Remember to check help file
+. // help reg
+. reg y x1 x2
+
+      Source |       SS           df       MS      Number of obs   =        23
+-------------+----------------------------------   F(2, 20)        =     28.63
+       Model |  818972.305         2  409486.153   Prob > F        =    0.0000
+    Residual |  286101.695        20  14305.0847   R-squared       =    0.7411
+-------------+----------------------------------   Adj R-squared   =    0.7152
+       Total |     1105074        22  50230.6364   Root MSE        =     119.6
+
+------------------------------------------------------------------------------
+           y | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          x1 |   1.771804    .314562     5.63   0.000     1.115639    2.427969
+          x2 |  -6.663479   2.279967    -2.92   0.008    -11.41941   -1.907551
+       _cons |   573.5074   100.0715     5.73   0.000     364.7619     782.253
+------------------------------------------------------------------------------
+
+. 
+. 
+. // Plot y against x1 and x2, respectively
+. twoway scatter y x1
+
+. twoway scatter y x1
+
+. 
+. // Plot y against x1 and x2, together
+. twoway (scatter y x1) (scatter y x2)
+
+. 
+. 
+. // Get predicted values of Y
+. predict y_predicted
+(option xb assumed; fitted values)
+
+. 
+. // Multiple R, correlation between Y and Y_predicted
+. // https://en.wikipedia.org/wiki/Coefficient_of_multiple_correlation
+. corr y y_predicted
+(obs=23)
+
+             |        y y_pred~d
+-------------+------------------
+           y |   1.0000
+ y_predicted |   0.8609   1.0000
+
+
+. 
+. 
+. // Get residuals
+. // Put residuals in a new variable named "resid"
+. predict resid, residuals
+
+. 
+. // Standarized residuals
+. center resid, standardize generate(c_resid)
+(generated variables: c_resid)
+
+. 
+. 
+. // Plots
+. // Ordered values of varname against quantiles of uniform distribution
+. quantile y
+
+. 
+. // Quantiles of varname against quantiles of normal distribution
+. qnorm y
+
+. 
+. // Residusls agains predicted values
+. twoway scatter resid  y_predicted 
+
+. 
+. 
+. // Prediction Interval
+. 
+. cap drop y_predicted
+
+. 
+. // Add one more observation
+. local newobs = _N + 1
+
+. set obs `newobs'                // set number of obs. to be current obs.+1
+Number of observations (_N) was 23, now 24.
+
+. replace x1=250 in L             // set x1, x2 values in the last (new) obs.
+(1 real change made)
+
+. replace x2=12 in L
+(1 real change made)
+
+.  
+. // Get predicted values of Y
+. predict y_predicted
+(option xb assumed; fitted values)
+
+. // Get the standard error of the predicted value
+. predict se_forecast, stdf // stdf is undocumented
+
+. // critical value
+. gen tmult = invttail(20, .025)
+
+. // lower and upper bounds for the Prediction Interval
+. gen prediction_interval_lb = y_predicted - tmult * se_forecast
+
+. gen prediction_interval_ub = y_predicted + tmult * se_forecast
+
+. 
+. list if x1==250 & x2==12
+
+     +----------------------------------------------------------------------------+
+ 24. | y |  x1 | x2 | resid | c_resid | y_pred~d | se_for~t |    tmult | predi~lb |
+     | . | 250 | 12 |     . |       . | 936.4966 | 122.4294 | 2.085963 | 681.1134 |
+     |----------------------------------------------------------------------------|
+     |                                  predi~ub                                  |
+     |                                   1191.88                                  |
+     +----------------------------------------------------------------------------+
+
+. 
+. 
+.  
+.  
+. 
+. 
+end of do-file
+.   do ${code}/liner_regression_analysis_3.do
+
+. /*******************************************************************************
+>   ____  _   _ ____ ____ _____ ___   ___ ____  
+>  | __ )| | | / ___/ ___|___  / _ \ / _ \___ \ 
+>  |  _ \| | | \___ \___ \  / / (_) | | | |__) |
+>  | |_) | |_| |___) |__) |/ / \__, | |_| / __/ 
+>  |____/ \___/|____/____//_/    /_/ \___/_____|
+>  
+>  Welcome to BUSS7902 Quantitative Business Research Methods
+>  
+>  This material is prepared by Dr. Mingze Gao (mingze.gao@sydney.edu.au).
+>  Course coordinator:
+>  - Dr. Claire Liu (claire.liu@sydney.edu.au) 2023 Semester 1
+>  - Dr. Boris Choy (boris.choy@sydney.edu.au) 2023 Semester 2
+> 
+>  ******************************************************************************/   
+.  
+. 
+. /* Hint:
+>    You can execute this file by either of the following:
+>         1) Click on the "Execute (do)" button
+>         2) "Ctrl+D" on Windows or "CMD+SHIFT+D" on Mac
+>  */
+.  
+.  
+. /*******************************************************************************
+>  Interactions in regression model
+>  ******************************************************************************/
+. 
+.  
+. sysuse auto, clear
+(1978 automobile data)
+
+. 
+. eststo clear
+
+. 
+. eststo: reg price length foreign      mpg rep78 headroom
+
+      Source |       SS           df       MS      Number of obs   =        69
+-------------+----------------------------------   F(5, 63)        =      6.50
+       Model |   196278345         5  39255669.1   Prob > F        =    0.0001
+    Residual |   380518614        63  6039977.99   R-squared       =    0.3403
+-------------+----------------------------------   Adj R-squared   =    0.2879
+       Total |   576796959        68  8482308.22   Root MSE        =    2457.6
+
+------------------------------------------------------------------------------
+       price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      length |   69.56876   26.77202     2.60   0.012     16.06914    123.0684
+     foreign |    2069.89   963.7932     2.15   0.036     143.9026    3995.877
+         mpg |  -133.3213   89.27837    -1.49   0.140    -311.7298    45.08733
+       rep78 |   271.2855   390.1953     0.70   0.489    -508.4577    1051.029
+    headroom |   -535.486   411.3812    -1.30   0.198    -1357.566    286.5938
+       _cons |   -4062.11   6294.773    -0.65   0.521    -16641.21     8516.99
+------------------------------------------------------------------------------
+(est1 stored)
+
+. eststo: reg price c.length##c.foreign mpg rep78 headroom 
+
+      Source |       SS           df       MS      Number of obs   =        69
+-------------+----------------------------------   F(6, 62)        =      5.39
+       Model |   197796970         6  32966161.7   Prob > F        =    0.0002
+    Residual |   378999989        62  6112903.04   R-squared       =    0.3429
+-------------+----------------------------------   Adj R-squared   =    0.2793
+       Total |   576796959        68  8482308.22   Root MSE        =    2472.4
+
+------------------------------------------------------------------------------------
+             price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+            length |   66.73218   27.52786     2.42   0.018     11.70477    121.7596
+           foreign |  -2220.422   8662.141    -0.26   0.799    -19535.79    15094.95
+                   |
+c.length#c.foreign |   25.44029   51.04116     0.50   0.620    -76.58954    127.4701
+                   |
+               mpg |  -122.6937   92.31196    -1.33   0.189    -307.2227    61.83525
+             rep78 |    212.611   409.8152     0.52   0.606    -606.5978     1031.82
+          headroom |  -468.9149   434.8755    -1.08   0.285    -1338.219    400.3889
+             _cons |  -3744.752   6364.589    -0.59   0.558    -16467.38     8977.88
+------------------------------------------------------------------------------------
+(est2 stored)
+
+. 
+. 
+. esttab ,  ar2 interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar
+> 2(3) nodepvar label noconstant s(N r2 r2_a, label( "Observations" "R-squared" "Adjusted R-s
+> quared") fmt(0 3 3)) title("Dependent variable: price") noconstant varwidth(30) 
+
+Dependent variable: price
+--------------------------------------------------------
+                                     (1)          (2)   
+                                    est1         est2   
+--------------------------------------------------------
+Length (in.)                      69.569**     66.732** 
+                                 (2.599)      (2.424)   
+Car origin                      2069.890**  -2220.422   
+                                 (2.148)     (-0.256)   
+Mileage (mpg)                   -133.321     -122.694   
+                                (-1.493)     (-1.329)   
+Repair record 1978               271.285      212.611   
+                                 (0.695)      (0.519)   
+Headroom (in.)                  -535.486     -468.915   
+                                (-1.302)     (-1.078)   
+Length (in.) X Car origin                      25.440   
+                                              (0.498)   
+--------------------------------------------------------
+Observations                          69           69   
+R-squared                          0.340        0.343   
+Adjusted R-squared                 0.288        0.279   
+--------------------------------------------------------
+t statistics in parentheses
+* p<0.10, ** p<0.05, *** p<0.01
+
+. 
+. // adjust order of variables in the table
+. esttab ,  ar2 interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar
+> 2(3) nodepvar label noconstant s(N r2 r2_a, label( "Observations" "R-squared" "Adjusted R-s
+> quared") fmt(0 3 3)) title("Dependent variable: price") noconstant varwidth(30) order(lengt
+> h foreign c.length#c.foreign headroom mpg rep78)
+
+Dependent variable: price
+--------------------------------------------------------
+                                     (1)          (2)   
+                                    est1         est2   
+--------------------------------------------------------
+Length (in.)                      69.569**     66.732** 
+                                 (2.599)      (2.424)   
+Car origin                      2069.890**  -2220.422   
+                                 (2.148)     (-0.256)   
+Length (in.) X Car origin                      25.440   
+                                              (0.498)   
+Headroom (in.)                  -535.486     -468.915   
+                                (-1.302)     (-1.078)   
+Mileage (mpg)                   -133.321     -122.694   
+                                (-1.493)     (-1.329)   
+Repair record 1978               271.285      212.611   
+                                 (0.695)      (0.519)   
+--------------------------------------------------------
+Observations                          69           69   
+R-squared                          0.340        0.343   
+Adjusted R-squared                 0.288        0.279   
+--------------------------------------------------------
+t statistics in parentheses
+* p<0.10, ** p<0.05, *** p<0.01
+
+.  
+.  
+. /*******************************************************************************
+>  Standard error clustering in regression model
+>  ******************************************************************************/
+.  
+. sysuse auto, clear
+(1978 automobile data)
+
+. 
+. 
+. eststo clear
+
+. 
+. eststo: reg price  mpg rep78 headroom length 
+
+      Source |       SS           df       MS      Number of obs   =        69
+-------------+----------------------------------   F(4, 64)        =      6.60
+       Model |   168419570         4  42104892.6   Prob > F        =    0.0002
+    Residual |   408377389        64   6380896.7   R-squared       =    0.2920
+-------------+----------------------------------   Adj R-squared   =    0.2477
+       Total |   576796959        68  8482308.22   Root MSE        =      2526
+
+------------------------------------------------------------------------------
+       price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -174.1346   89.66043    -1.94   0.057    -353.2519    4.982709
+       rep78 |   718.6495   339.1259     2.12   0.038     41.16765    1396.131
+    headroom |  -578.9523   422.3198    -1.37   0.175    -1422.633    264.7284
+      length |   43.21237   24.45586     1.77   0.082    -5.643817    92.06856
+       _cons |   1006.175   5998.093     0.17   0.867    -10976.39    12988.74
+------------------------------------------------------------------------------
+(est1 stored)
+
+. eststo: reg price  mpg rep78 headroom length, cluster(make)
+
+Linear regression                               Number of obs     =         69
+                                                F(4, 68)          =       7.61
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.2920
+                                                Root MSE          =       2526
+
+                                  (Std. err. adjusted for 69 clusters in make)
+------------------------------------------------------------------------------
+             |               Robust
+       price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -174.1346   89.53699    -1.94   0.056    -352.8029    4.533691
+       rep78 |   718.6495   274.5564     2.62   0.011     170.7807    1266.518
+    headroom |  -578.9523   312.4224    -1.85   0.068    -1202.381    44.47688
+      length |   43.21237   22.76903     1.90   0.062    -2.222523    88.64726
+       _cons |   1006.175   5593.657     0.18   0.858    -10155.79    12168.14
+------------------------------------------------------------------------------
+(est2 stored)
+
+. 
+. eststo: reg price  mpg rep78 headroom trunk weight length turn displacement gear_ratio
+
+      Source |       SS           df       MS      Number of obs   =        69
+-------------+----------------------------------   F(9, 59)        =      6.96
+       Model |   296996341         9  32999593.4   Prob > F        =    0.0000
+    Residual |   279800618        59  4742383.36   R-squared       =    0.5149
+-------------+----------------------------------   Adj R-squared   =    0.4409
+       Total |   576796959        68  8482308.22   Root MSE        =    2177.7
+
+------------------------------------------------------------------------------
+       price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -114.7428   79.17245    -1.45   0.153    -273.1665    43.68089
+       rep78 |   710.8792   322.1172     2.21   0.031     66.32422    1355.434
+    headroom |  -725.6361   416.6599    -1.74   0.087    -1559.371    108.0984
+       trunk |   70.11347   103.6329     0.68   0.501    -137.2554    277.4824
+      weight |   4.034468   1.531879     2.63   0.011     .9691861     7.09975
+      length |  -84.38974   43.98228    -1.92   0.060    -172.3981    3.618597
+        turn |  -207.4801   131.4974    -1.58   0.120    -470.6058     55.6456
+displacement |   16.63013    8.99497     1.85   0.069     -1.36876    34.62903
+  gear_ratio |   1642.588    1061.15     1.55   0.127    -480.7681    3765.943
+       _cons |   11063.07   7305.303     1.51   0.135    -3554.809    25680.95
+------------------------------------------------------------------------------
+(est3 stored)
+
+. eststo: reg price  mpg rep78 headroom trunk weight length turn displacement gear_ratio, vce
+> (cluster make)
+
+Linear regression                               Number of obs     =         69
+                                                F(9, 68)          =       8.82
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.5149
+                                                Root MSE          =     2177.7
+
+                                  (Std. err. adjusted for 69 clusters in make)
+------------------------------------------------------------------------------
+             |               Robust
+       price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -114.7428   85.03617    -1.35   0.182    -284.4299    54.94422
+       rep78 |   710.8792   326.5328     2.18   0.033     59.29316    1362.465
+    headroom |  -725.6361   269.8137    -2.69   0.009    -1264.041   -187.2313
+       trunk |   70.11347   71.46448     0.98   0.330    -72.49168    212.7186
+      weight |   4.034468   2.249466     1.79   0.077    -.4542723    8.523208
+      length |  -84.38974   58.36799    -1.45   0.153    -200.8612    32.08176
+        turn |  -207.4801    146.689    -1.41   0.162    -500.1935    85.23322
+displacement |   16.63013   8.728827     1.91   0.061    -.7879697    34.04824
+  gear_ratio |   1642.588   878.8419     1.87   0.066    -111.1141    3396.289
+       _cons |   11063.07   8906.379     1.24   0.218    -6709.333    28835.47
+------------------------------------------------------------------------------
+(est4 stored)
+
+. eststo: reg price  mpg rep78 headroom trunk weight length turn displacement gear_ratio, vce
+> (cluster foreign) // only 2, not recommended to cluster by foreign. This is for demonstrati
+> on only.
+
+Linear regression                               Number of obs     =         69
+                                                F(0, 1)           =          .
+                                                Prob > F          =          .
+                                                R-squared         =     0.5149
+                                                Root MSE          =     2177.7
+
+                                (Std. err. adjusted for 2 clusters in foreign)
+------------------------------------------------------------------------------
+             |               Robust
+       price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -114.7428   66.40858    -1.73   0.334    -958.5438    729.0582
+       rep78 |   710.8792   231.8439     3.07   0.201    -2234.977    3656.735
+    headroom |  -725.6361   89.93499    -8.07   0.079    -1868.369    417.0962
+       trunk |   70.11347   46.93523     1.49   0.376    -526.2552    666.4822
+      weight |   4.034468   .5211019     7.74   0.082    -2.586759     10.6557
+      length |  -84.38974   60.44901    -1.40   0.396    -852.4672    683.6877
+        turn |  -207.4801   142.7842    -1.45   0.384    -2021.726    1606.765
+displacement |   16.63013   3.819044     4.35   0.144    -31.89543    65.15569
+  gear_ratio |   1642.588    817.683     2.01   0.294     -8747.06    12032.24
+       _cons |   11063.07   3816.303     2.90   0.211    -37427.65    59553.79
+------------------------------------------------------------------------------
+(est5 stored)
+
+. 
+. // For double S.E. clustering, we need to use -reghdfe- instead
+. eststo: reghdfe price  mpg rep78 headroom trunk weight length turn displacement gear_ratio,
+>  vce(cluster foreign make) noa
+(MWFE estimator converged in 1 iterations)
+Warning: VCV matrix was non-positive semi-definite; adjustment from Cameron, Gelbach & Miller
+>  applied.
+warning: missing F statistic; dropped variables due to collinearity or too few clusters
+
+HDFE Linear regression                            Number of obs   =         69
+Absorbing 1 HDFE group                            F(   9,      1) =          .
+Statistics robust to heteroskedasticity           Prob > F        =          .
+                                                  R-squared       =     0.5149
+                                                  Adj R-squared   =     0.4409
+Number of clusters (foreign) =          2         Within R-sq.    =     0.5149
+Number of clusters (make)    =         69         Root MSE        =  2177.7014
+
+                           (Std. err. adjusted for 2 clusters in foreign make)
+------------------------------------------------------------------------------
+             |               Robust
+       price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -114.7428   66.40858    -1.73   0.334    -958.5438    729.0582
+       rep78 |   710.8792   231.8439     3.07   0.201    -2234.977    3656.735
+    headroom |  -725.6361   89.93499    -8.07   0.079    -1868.369    417.0962
+       trunk |   70.11347   46.93523     1.49   0.376    -526.2552    666.4822
+      weight |   4.034468   .5211019     7.74   0.082    -2.586759     10.6557
+      length |  -84.38974   60.44901    -1.40   0.396    -852.4672    683.6877
+        turn |  -207.4801   142.7842    -1.45   0.384    -2021.726    1606.765
+displacement |   16.63013   3.819044     4.35   0.144    -31.89543    65.15569
+  gear_ratio |   1642.588    817.683     2.01   0.294     -8747.06    12032.24
+       _cons |   11063.07   3816.303     2.90   0.211    -37427.65    59553.79
+------------------------------------------------------------------------------
+(est6 stored)
+
+. 
+. 
+. esttab ,  ar2 mtitles("no cluster" "by make" "no cluster" "by make" "by foreign" "by make a
+> nd foreign") interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2
+> (3) nodepvar label noconstant s(N r2 r2_a, label( "Observations" "R-squared" "Adjusted R-sq
+> uared") fmt(0 3 3)) title("Dependent variable: price") noconstant varwidth(20) 
+
+Dependent variable: price
+---------------------------------------------------------------------------------------------
+> -----
+                           (1)          (2)          (3)          (4)          (5)          (
+> 6)   
+                     no clus~r      by make    no clus~r      by make    by fore~n    by make
+> ~n   
+---------------------------------------------------------------------------------------------
+> -----
+Mileage (mpg)         -174.135*    -174.135*    -114.743     -114.743     -114.743     -114.7
+> 43   
+                      (-1.942)     (-1.945)     (-1.449)     (-1.349)     (-1.728)     (-1.72
+> 8)   
+Repair record 1978     718.650**    718.650**    710.879**    710.879**    710.879      710.8
+> 79   
+                       (2.119)      (2.617)      (2.207)      (2.177)      (3.066)      (3.06
+> 6)   
+Headroom (in.)        -578.952     -578.952*    -725.636*    -725.636***  -725.636*    -725.6
+> 36*  
+                      (-1.371)     (-1.853)     (-1.742)     (-2.689)     (-8.068)     (-8.06
+> 8)   
+Length (in.)            43.212*      43.212*     -84.390*     -84.390      -84.390      -84.3
+> 90   
+                       (1.767)      (1.898)     (-1.919)     (-1.446)     (-1.396)     (-1.39
+> 6)   
+Trunk space (.. ft.)                              70.113       70.113       70.113       70.1
+> 13   
+                                                 (0.677)      (0.981)      (1.494)      (1.49
+> 4)   
+Weight (lbs.)                                      4.034**      4.034*       4.034*       4.0
+> 34*  
+                                                 (2.634)      (1.794)      (7.742)      (7.74
+> 2)   
+Turn circle (ft.)                               -207.480     -207.480     -207.480     -207.4
+> 80   
+                                                (-1.578)     (-1.414)     (-1.453)     (-1.45
+> 3)   
+Displacement .. in.)                              16.630*      16.630*      16.630       16.6
+> 30   
+                                                 (1.849)      (1.905)      (4.355)      (4.35
+> 5)   
+Gear ratio                                      1642.588     1642.588*    1642.588     1642.5
+> 88   
+                                                 (1.548)      (1.869)      (2.009)      (2.00
+> 9)   
+---------------------------------------------------------------------------------------------
+> -----
+Observations                69           69           69           69           69           
+> 69   
+R-squared                0.292        0.292        0.515        0.515        0.515        0.5
+> 15   
+Adjusted R-squared       0.248        0.248        0.441        0.441        0.441        0.4
+> 41   
+---------------------------------------------------------------------------------------------
+> -----
+t statistics in parentheses
+* p<0.10, ** p<0.05, *** p<0.01
+
+. 
+. 
+. 
+. /*******************************************************************************
+>  A more complete example (?)
+>  ******************************************************************************/
+.  
+. sysuse auto, clear
+(1978 automobile data)
+
+. 
+. eststo clear
+
+. 
+. eststo: reghdfe price  mpg rep78 headroom length, noa // option "noa" means no fixed effect
+>  absorbed
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =         69
+Absorbing 1 HDFE group                            F(   4,     64) =       6.60
+                                                  Prob > F        =     0.0002
+                                                  R-squared       =     0.2920
+                                                  Adj R-squared   =     0.2477
+                                                  Within R-sq.    =     0.2920
+                                                  Root MSE        =  2526.0437
+
+------------------------------------------------------------------------------
+       price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -174.1346   89.66043    -1.94   0.057    -353.2519    4.982709
+       rep78 |   718.6495   339.1259     2.12   0.038     41.16765    1396.131
+    headroom |  -578.9523   422.3198    -1.37   0.175    -1422.633    264.7284
+      length |   43.21237   24.45586     1.77   0.082    -5.643817    92.06856
+       _cons |   1006.175   5998.093     0.17   0.867    -10976.39    12988.74
+------------------------------------------------------------------------------
+(est1 stored)
+
+. estadd local fe                 "none", replace
+
+added macro:
+                 e(fe) : "none"
+
+. estadd local secluster  "none", replace
+
+added macro:
+          e(secluster) : "none"
+
+. 
+. eststo: reghdfe price  mpg rep78 headroom length, noa cluster(make) // cluster s.e. by make
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =         69
+Absorbing 1 HDFE group                            F(   4,     64) =       7.61
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.2920
+                                                  Adj R-squared   =     0.2477
+                                                  Within R-sq.    =     0.2920
+Number of clusters (make)    =         69         Root MSE        =  2526.0437
+
+                                  (Std. err. adjusted for 69 clusters in make)
+------------------------------------------------------------------------------
+             |               Robust
+       price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -174.1346   89.53699    -1.94   0.056    -353.0053    4.736109
+       rep78 |   718.6495   274.5564     2.62   0.011       170.16    1267.139
+    headroom |  -578.9523   312.4224    -1.85   0.068    -1203.088    45.18318
+      length |   43.21237   22.76903     1.90   0.062    -2.273997    88.69874
+       _cons |   1006.175   5593.657     0.18   0.858    -10168.44    12180.79
+------------------------------------------------------------------------------
+(est2 stored)
+
+. estadd local fe                 "none", replace
+
+added macro:
+                 e(fe) : "none"
+
+. estadd local secluster  "by make", replace
+
+added macro:
+          e(secluster) : "by make"
+
+. 
+. eststo: reghdfe price  mpg rep78 headroom trunk weight length turn displacement gear_ratio,
+>  noa cluster(make)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =         69
+Absorbing 1 HDFE group                            F(   9,     59) =       8.82
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5149
+                                                  Adj R-squared   =     0.4409
+                                                  Within R-sq.    =     0.5149
+Number of clusters (make)    =         69         Root MSE        =  2177.7014
+
+                                  (Std. err. adjusted for 69 clusters in make)
+------------------------------------------------------------------------------
+             |               Robust
+       price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -114.7428   85.03617    -1.35   0.182    -284.8998    55.41417
+       rep78 |   710.8792   326.5328     2.18   0.033     57.48859     1364.27
+    headroom |  -725.6361   269.8137    -2.69   0.009    -1265.532   -185.7401
+       trunk |   70.11347   71.46448     0.98   0.331    -72.88662    213.1136
+      weight |   4.034468   2.249466     1.79   0.078    -.4667039     8.53564
+      length |  -84.38974   58.36799    -1.45   0.154    -201.1838    32.40433
+        turn |  -207.4801    146.689    -1.41   0.162    -501.0041    86.04389
+displacement |   16.63013   8.728827     1.91   0.062    -.8362091    34.09647
+  gear_ratio |   1642.588   878.8419     1.87   0.067     -115.971    3401.146
+       _cons |   11063.07   8906.379     1.24   0.219    -6758.554    28884.69
+------------------------------------------------------------------------------
+(est3 stored)
+
+. estadd local fe                 "none", replace
+
+added macro:
+                 e(fe) : "none"
+
+. estadd local secluster  "by make", replace
+
+added macro:
+          e(secluster) : "by make"
+
+. 
+. eststo: reghdfe price  mpg rep78 headroom trunk weight length turn displacement gear_ratio,
+>  a(foreign) cluster(make)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =         69
+Absorbing 1 HDFE group                            F(   9,     58) =      12.56
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5989
+                                                  Adj R-squared   =     0.5297
+                                                  Within R-sq.    =     0.5987
+Number of clusters (make)    =         69         Root MSE        =  1997.3292
+
+                                  (Std. err. adjusted for 69 clusters in make)
+------------------------------------------------------------------------------
+             |               Robust
+       price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         mpg |  -21.80518   84.00518    -0.26   0.796    -189.9598    146.3495
+       rep78 |   184.7935   337.0935     0.55   0.586    -489.9724    859.5594
+    headroom |  -635.4921   251.3987    -2.53   0.014    -1138.721    -132.263
+       trunk |   71.49929   70.18603     1.02   0.313     -68.9933    211.9919
+      weight |   4.521161   1.963781     2.30   0.025      .590227    8.452096
+      length |  -76.49101   51.40168    -1.49   0.142    -179.3826    26.40062
+        turn |  -114.2777   122.2631    -0.93   0.354    -359.0139    130.4585
+displacement |   11.54012   7.065004     1.63   0.108    -2.602017    25.68227
+  gear_ratio |  -318.6479   1016.632    -0.31   0.755    -2353.658    1716.362
+       _cons |   10804.45    8247.73     1.31   0.195    -5705.177    27314.07
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     foreign |         2           0           2     |
+-----------------------------------------------------+
+(est4 stored)
+
+. estadd local fe                 "foreign", replace
+
+added macro:
+                 e(fe) : "foreign"
+
+. estadd local secluster  "by make", replace
+
+added macro:
+          e(secluster) : "by make"
+
+. 
+. eststo: reghdfe price  c.mpg##c.foreign rep78 headroom trunk weight length turn displacemen
+> t gear_ratio, noa cluster(make)
+(MWFE estimator converged in 1 iterations)
+
+HDFE Linear regression                            Number of obs   =         69
+Absorbing 1 HDFE group                            F(  11,     57) =      12.78
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.6214
+                                                  Adj R-squared   =     0.5484
+                                                  Within R-sq.    =     0.6214
+Number of clusters (make)    =         69         Root MSE        =  1957.2500
+
+                                     (Std. err. adjusted for 69 clusters in make)
+---------------------------------------------------------------------------------
+                |               Robust
+          price | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+            mpg |   169.7108   204.5483     0.83   0.410    -239.8902    579.3119
+        foreign |    9527.69   4830.391     1.97   0.053    -145.0009    19200.38
+                |
+c.mpg#c.foreign |  -240.3008   178.5464    -1.35   0.184    -597.8339    117.2322
+                |
+          rep78 |   89.94853   312.4375     0.29   0.774    -535.6967    715.5938
+       headroom |  -475.9181   247.8834    -1.92   0.060     -972.296    20.45982
+          trunk |   84.31005    70.9132     1.19   0.239    -57.69117    226.3113
+         weight |   4.973529   2.256315     2.20   0.032     .4553362    9.491722
+         length |  -79.86189   51.88745    -1.54   0.129    -183.7647    24.04094
+           turn |  -54.72578   134.1307    -0.41   0.685    -323.3178    213.8663
+   displacement |   14.96334     7.3927     2.02   0.048     .1597169    29.76697
+     gear_ratio |    59.5536   912.6541     0.07   0.948    -1768.005    1887.112
+          _cons |   423.5073   12128.82     0.03   0.972    -23864.04    24711.06
+---------------------------------------------------------------------------------
+(est5 stored)
+
+. estadd local fe                 "none", replace
+
+added macro:
+                 e(fe) : "none"
+
+. estadd local secluster  "by make", replace
+
+added macro:
+          e(secluster) : "by make"
+
+. 
+. 
+. esttab ,  ar2 interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar
+> 2(3) nodepvar label noconstant s(fe secluster N r2 r2_a, label("Fixed Effects" "S.E. cluste
+> r" "Observations" "R-squared" "Adjusted R-squared") fmt(0 3 3)) title("Dependent variable: 
+> price") noconstant varwidth(30) order(mpg foreign c.mpg#c.foreign)
+
+Dependent variable: price
+---------------------------------------------------------------------------------------------
+> --
+                                     (1)          (2)          (3)          (4)          (5) 
+>   
+                                    est1         est2         est3         est4         est5 
+>   
+---------------------------------------------------------------------------------------------
+> --
+Mileage (mpg)                   -174.135*    -174.135*    -114.743      -21.805      169.711 
+>   
+                                (-1.942)     (-1.945)     (-1.349)     (-0.260)      (0.830) 
+>   
+Car origin                                                                          9527.690*
+>   
+                                                                                     (1.972) 
+>   
+Mileage (mpg) X Car origin                                                          -240.301 
+>   
+                                                                                    (-1.346) 
+>   
+Repair record 1978               718.650**    718.650**    710.879**    184.793       89.949 
+>   
+                                 (2.119)      (2.617)      (2.177)      (0.548)      (0.288) 
+>   
+Headroom (in.)                  -578.952     -578.952*    -725.636***  -635.492**   -475.918*
+>   
+                                (-1.371)     (-1.853)     (-2.689)     (-2.528)     (-1.920) 
+>   
+Length (in.)                      43.212*      43.212*     -84.390      -76.491      -79.862 
+>   
+                                 (1.767)      (1.898)     (-1.446)     (-1.488)     (-1.539) 
+>   
+Trunk space (cu. ft.)                                       70.113       71.499       84.310 
+>   
+                                                           (0.981)      (1.019)      (1.189) 
+>   
+Weight (lbs.)                                                4.034*       4.521**      4.974*
+> * 
+                                                           (1.794)      (2.302)      (2.204) 
+>   
+Turn circle (ft.)                                         -207.480     -114.278      -54.726 
+>   
+                                                          (-1.414)     (-0.935)     (-0.408) 
+>   
+Displacement (cu. in.)                                      16.630*      11.540       14.963*
+> * 
+                                                           (1.905)      (1.633)      (2.024) 
+>   
+Gear ratio                                                1642.588*    -318.648       59.554 
+>   
+                                                           (1.869)     (-0.313)      (0.065) 
+>   
+---------------------------------------------------------------------------------------------
+> --
+Fixed Effects                       none         none         none      foreign         none 
+>   
+S.E. cluster                        none      by make      by make      by make      by make 
+>   
+Observations                      69.000       69.000       69.000       69.000       69.000 
+>   
+R-squared                          0.292        0.292        0.515        0.599        0.621 
+>   
+Adjusted R-squared                 0.248        0.248        0.441        0.530        0.548 
+>   
+---------------------------------------------------------------------------------------------
+> --
+t statistics in parentheses
+* p<0.10, ** p<0.05, *** p<0.01
+
+. 
+. 
+end of do-file
+. }
+
+. 
+. /*******************************************************************************
+>  Stop logging
+>  ******************************************************************************/
+. 
+. log close ${logname}
+      name:  BUSS7902
+       log:  /Users/adriangao/Documents/GitHub/BUSS7902/log/20230901.log
+  log type:  text
+ closed on:   1 Sep 2023, 11:18:18
+---------------------------------------------------------------------------------------------

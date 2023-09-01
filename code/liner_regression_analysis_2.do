@@ -27,7 +27,7 @@
  ******************************************************************************/
  
  // The original dataset from Excel spreadsheet
-use "./data/real_estate.dta", clear
+use "${data}/real_estate.dta", clear
 
 // Investigate multiculinearity
 corr x1 x2

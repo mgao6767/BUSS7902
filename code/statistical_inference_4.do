@@ -27,7 +27,7 @@
  ******************************************************************************/
  
 // The original dataset from Excel spreadsheet is not in a desirable format
-use "./data/4machines.dta", clear
+use "${data}/4machines.dta", clear
 
 // Reshape it
 gen i = _n
@@ -73,7 +73,7 @@ sdtest machine if group==2 | group==3, by(group)
  Example: Assembly
  ******************************************************************************/
  
-use "./data/assembly2.dta", clear
+use "${data}/assembly2.dta", clear
 
 quietly su time, detail
 local jb_stat = r(N) * (r(skewness)^2 + (r(kurtosis)-3)^2/4)/6
@@ -89,7 +89,7 @@ di "Chi2 critical value is " invchi2(2, 1-0.05)
  ******************************************************************************/
 
 // The original dataset from Excel spreadsheet is not in a desirable format
-use "./data/salary.dta", clear
+use "${data}/salary.dta", clear
 
 // Let's rename and reshape 
 rename group1 salary1

@@ -1,5 +1,5 @@
 
-use "./advertising.dta", clear
+use "${temp}/advertising.dta", clear
 
 
 /*******************************************************************************

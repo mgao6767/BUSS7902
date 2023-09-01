@@ -28,7 +28,7 @@ display "BUSS7902 Chapter 4A - Statistical Inference II"
  Import data from Excel spreadsheet
  ******************************************************************************/                    
 
-local spreadsheet "./spreadsheet/BUSS7902 Chapter 4B Lecture (Data).xlsx"
+local spreadsheet "${input}/spreadsheets/BUSS7902 Chapter 4B Lecture (Data).xlsx"
 
 import excel using "`spreadsheet'", describe
 
@@ -39,7 +39,7 @@ forvalues i=1/`r(N_worksheet)' {
 	qui: import excel using "`spreadsheet'", firstrow sheet("`sheetname'") ///
 		cellrange(A1:A`rangeClose') clear
 	loc sheetname = strlower("`sheetname'")
-	save "./`sheetname'.dta", replace
+	save "${temp}/`sheetname'.dta", replace
 }
 
 
@@ -47,9 +47,9 @@ forvalues i=1/`r(N_worksheet)' {
  Run do files and solve questions
  ******************************************************************************/                    
 
-do "./code/statistical_inference_garlic.do"
-do "./code/statistical_inference_advertising.do"
-do "./code/statistical_inference_production.do"
-do "./code/statistical_inference_survey.do"
-do "./code/statistical_inference_product.do"
+do "${code}/statistical_inference_garlic.do"
+do "${code}/statistical_inference_advertising.do"
+do "${code}/statistical_inference_production.do"
+do "${code}/statistical_inference_survey.do"
+do "${code}/statistical_inference_product.do"
 

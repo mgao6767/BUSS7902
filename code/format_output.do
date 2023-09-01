@@ -46,10 +46,10 @@ esttab ., replace cells("count mean(fmt(%9.3f)) sd(fmt(%9.3f)) p10(fmt(%9.3f)) p
 
 // We can also output the table directly to a file
 // For example, to a CSV file
-esttab using "Table_1_summary_stat.csv", csv replace cells("count mean(fmt(%9.3f)) sd(fmt(%9.3f)) p10(fmt(%9.3f)) p50(fmt(%9.3f)) p90(fmt(%9.3f))") nonumber noobs label 
+esttab using "${tables}/Table_1_summary_stat.csv", csv replace cells("count mean(fmt(%9.3f)) sd(fmt(%9.3f)) p10(fmt(%9.3f)) p50(fmt(%9.3f)) p90(fmt(%9.3f))") nonumber noobs label 
 
 // Or, to a TeX file
-esttab using "Table_1_summary_stat.tex", tex replace cells("count mean(fmt(%9.3f)) sd(fmt(%9.3f)) p10(fmt(%9.3f)) p50(fmt(%9.3f)) p90(fmt(%9.3f))") nonumber noobs label 
+esttab using "${tables}/Table_1_summary_stat.tex", tex replace cells("count mean(fmt(%9.3f)) sd(fmt(%9.3f)) p10(fmt(%9.3f)) p50(fmt(%9.3f)) p90(fmt(%9.3f))") nonumber noobs label 
 
 
 
@@ -77,10 +77,10 @@ eststo: reg margin number nearest office enrolment income distance
 
 
 // Export to CSV file
-esttab using "Table_2_baseline.csv", csv replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4" "Model 5") interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(N r2 r2_a, label( "Observations" "R-squared" "Adjusted R-squared") fmt(0 3 3)) title("Dependent variable: margin") noconstant 
+esttab using "${tables}/Table_2_baseline.csv", csv replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4" "Model 5") interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(N r2 r2_a, label( "Observations" "R-squared" "Adjusted R-squared") fmt(0 3 3)) title("Dependent variable: margin") noconstant 
 
 // Export to TeX file
-esttab using "Table_2_baseline.tex", tex replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4" "Model 5") interaction(" \$\times\$ ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(N r2 r2_a, label( "Observations" "\$R^2\$" "Adjusted \$R^2\$") fmt(0 3 3)) title("Dependent variable: margin") noconstant 
+esttab using "${tables}/Table_2_baseline.tex", tex replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4" "Model 5") interaction(" \$\times\$ ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(N r2 r2_a, label( "Observations" "\$R^2\$" "Adjusted \$R^2\$") fmt(0 3 3)) title("Dependent variable: margin") noconstant 
 
 
 
@@ -108,9 +108,9 @@ estadd local sample "Winsored", replace
 
 
 // Export to CSV file
-esttab using "Table_3_robustness.csv", csv replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4") interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(sample N r2 r2_a, label("Sample" "Observations" "R-squared" "Adjusted R-squared") fmt(a1 0 3 3)) title("Dependent variable: margin") noconstant 
+esttab using "${tables}/Table_3_robustness.csv", csv replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4") interaction(" X ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(sample N r2 r2_a, label("Sample" "Observations" "R-squared" "Adjusted R-squared") fmt(a1 0 3 3)) title("Dependent variable: margin") noconstant 
 
 // Export to TeX file
-esttab using "Table_3_robustness.tex", tex replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4") interaction(" \$\times\$ ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(sample N r2 r2_a, label("Sample" "Observations" "\$R^2\$" "Adjusted \$R^2\$") fmt(a1 0 3 3)) title("Dependent variable: margin") noconstant 
+esttab using "${tables}/Table_3_robustness.tex", tex replace ar2 mtitles("Model 1" "Model 2" "Model 3" "Model 4") interaction(" \$\times\$ ") star(* 0.10 ** 0.05 *** 0.01) nogaps compress b(3) t(3) ar2(3) nodepvar label noconstant s(sample N r2 r2_a, label("Sample" "Observations" "\$R^2\$" "Adjusted \$R^2\$") fmt(a1 0 3 3)) title("Dependent variable: margin") noconstant 
 
 
