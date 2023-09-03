@@ -1,2 +1,4 @@
 ./*.dta
 .DS_Store
+temp/
+*.log
