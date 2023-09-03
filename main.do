@@ -28,9 +28,15 @@ set linesize 255
 
 cap ado uninstall setroot
 net install setroot, from("https://raw.githubusercontent.com/sergiocorreia/stata-setroot/master/src/")
+cap ado uninstall require
+net install require, from("https://raw.githubusercontent.com/sergiocorreia/stata-require/master/src/")
 
 setroot, more
 cd $root
+
+require reghdfe, install
+require ftools,  install
+require center,  install
 
 /* 
   -setroot- makes available global macros for the directories in the folder.
